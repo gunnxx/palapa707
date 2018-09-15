@@ -1,5 +1,5 @@
-#ifndef OBJ_DETECTOR_KRTI18
-#define OBJ_DETECTOR_KRTI18
+#ifndef OBJ_DETECTOR
+#define OBJ_DETECTOR
 
 #include <vector>
 #include <math.h>

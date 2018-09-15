@@ -82,7 +82,7 @@ int main (int argc, char **argv) {
 
 		// If object is confirmed
 		if (count_validate > validation_thresh) {
-			ROS_INFO("Object is detected.\nExecuting its corresponding mission.\m");
+			ROS_INFO("Object is detected.\nExecuting its corresponding mission.\n");
 			
 			// Publishing mission_type
 			mission.mission_type = MISSIONS[index_mission];
