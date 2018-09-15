@@ -47,17 +47,23 @@ set(CLASS_DEF
 ## Add executable files
 add_executable(fm_changer
 	src/fm_changer.cpp)
+add_dependencies(fm_changer
+	krti18_generate_messages_cpp)
 target_link_libraries(fm_changer
 	${catkin_LIBRARIES})
 
 add_executable(main
 	src/main.cpp)
+add_dependencies(main
+	krti18_generate_messages_cpp)
 target_link_libraries(main
 	${catkin_LIBRARIES})
 
 add_executable(mission_control
 	src/mission_control.cpp
 	${CLASS_DEF})
+add_dependencies(mission_control
+	krti18_generate_messages_cpp)
 target_link_libraries(mission_control
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
@@ -65,6 +71,8 @@ target_link_libraries(mission_control
 add_executable(vision
 	src/vision.cpp
 	${CLASS_DEF})
+add_dependencies(vision
+	krti18_generate_messages_cpp)
 target_link_libraries(vision
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
