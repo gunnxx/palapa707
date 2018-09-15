@@ -1,0 +1,10 @@
+<launch>
+	<!-- INTERNAL PACKAGE -->
+	<node name="main" 			 pkg="krti18" type="main" 			 output="screen"/>
+	<node name="fm_changer" 	 pkg="krti18" type="fm_changer" 	 output="screen"/>
+	<node name="mission_control" pkg="krti18" type="mission_control" output="screen"/>
+	<node name="vision" 		 pkg="krti18" type="vision" 		 output="screen"/>
+	
+	<!-- EXTERNAL PACKAGE DEPENDENCIES -->
+	<!-- node name="rosserial" pkg="rosserial_server" type="serial_node" /--> 
+</launch>
