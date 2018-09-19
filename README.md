@@ -10,5 +10,6 @@ Palapa707 is the name of Universitas Indonesia's team competing on Kontes Robot 
 ```
 git clone https://github.com/gunnxx/palapa707.git
 cd palapa707
+source devel/setup.bash
 catkin_make
 ```
