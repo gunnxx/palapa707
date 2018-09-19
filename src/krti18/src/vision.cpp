@@ -1,5 +1,3 @@
-#include <vector>
-
 #include "ObjectDetector.h"
 
 #include "ros/ros.h"
@@ -17,8 +15,7 @@ int main(int argc, char **argv) {
 	cv::VideoCapture cap(0);
 
 	vision::ObjectDetector detector;
-	cv::Vec3f square;
-	cv::Vec3f circle;
+	cv::Vec3f shape;
 
 	ros::Publisher  cv_target_publisher = nh.advertise<krti18::Shape>("cv_target", 1);
 	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
@@ -41,29 +38,29 @@ int main(int argc, char **argv) {
 		if (cv_flag == -1 ) {
 			break;
 		} else if (cv_flag == 1) {
-			detector.findCircles(image, circle);
+			detector.findCircles(image, shape);
 			
-			target.x_obj = static_cast<int>(circle[0]);
-			target.y_obj = static_cast<int>(circle[1]);
-			target.r_obj = static_cast<int>(circle[2]);
+			target.x_obj = static_cast<int>(shape[0]);
+			target.y_obj = static_cast<int>(shape[1]);
+			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 2) {
-			detector.findSquares(image, square);
+			detector.findSquares(image, shape);
 
-			target.x_obj = static_cast<int>(square[0]);
-			target.y_obj = static_cast<int>(square[1]);
-			target.r_obj = static_cast<int>(square[2]);
+			target.x_obj = static_cast<int>(shape[0]);
+			target.y_obj = static_cast<int>(shape[1]);
+			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 3) {
-			detector.findCircles(image, circle);
+			detector.findCircles(image, shape);
 			
-			target.x_obj = static_cast<int>(circle[0]);
-			target.y_obj = static_cast<int>(circle[1]);
-			target.r_obj = static_cast<int>(circle[2]);
+			target.x_obj = static_cast<int>(shape[0]);
+			target.y_obj = static_cast<int>(shape[1]);
+			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 4) {
-			detector.findSquares(image, square);
+			detector.findSquares(image, shape);
 
-			target.x_obj = static_cast<int>(square[0]);
-			target.y_obj = static_cast<int>(square[1]);
-			target.r_obj = static_cast<int>(square[2]);
+			target.x_obj = static_cast<int>(shape[0]);
+			target.y_obj = static_cast<int>(shape[1]);
+			target.r_obj = static_cast<int>(shape[2]);
 		} else { /* Publish nothing */
 			target.x_obj = 0;
 			target.y_obj = 0;
