@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 3) {
-			detector.findColor(src, shape, lH, hH, lS, sS, lV, hV);
+			detector.findColor(src, shape, lH, hH, lS, hS, lV, hV);
 			
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
