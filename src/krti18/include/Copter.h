@@ -15,12 +15,13 @@ class Copter {
   	~Copter();
 
   	/* ========================
-  		Copter movement method
+  		  Copter movement method
   	   ======================== */
   	void go_center();
+    void go_down(float desired_alt);
 
   	/* ==========
-  		Callback
+  		  Callback
   	   ========== */
   	void cv_target_callback(const krti18::Shape& obj_loc);
   	void arduino_data_callback(const krti18::Ardu& data);
@@ -34,9 +35,9 @@ class Copter {
   	ros::Timer 		_mission_timer;
 
   	/* ====================================
-  		Detected Object (Square or Circle)
-  		to be subscribed from _cv_det_sub
-  		as /State for PID
+    		Detected Object (Square or Circle)
+    		to be subscribed from _cv_det_sub
+    		as /State for PID
   	   ==================================== */
   	int _x_det = 0;
   	int _y_det = 0;
@@ -44,36 +45,41 @@ class Copter {
   	float _safe_zone = 0.5;
 
   	/* ================================
-  		Camera center location (pixel)
-  		as /Setpoint for PID
+    		Camera center location (pixel)
+    		as /Setpoint for PID
   	   ================================ */
-	int _X_CAM = 320;
-	int _Y_CAM = 240;
+  	int _X_CAM = 320;
+  	int _Y_CAM = 240;
 
-	/* ==========
-		PID Gain
-	   ========== */
-	float _Kpx    = 0.002;
-	float _Kdx    = 0.000;
-	float _Kix    = 0.000;
-	float _max_ix = 0.050;
-	
-	float _Kpy    = 0.002;
-	float _Kdy    = 0.000;
-	float _Kiy    = 0.000;
-	float _max_iy = 0.050;
+  	/* ==========
+  		  PID Gain
+  	   ========== */
+  	float _Kpx    = 0.002;
+  	float _Kdx    = 0.000;
+  	float _Kix    = 0.000;
+  	float _max_ix = 0.050;
+  	
+  	float _Kpy    = 0.002;
+  	float _Kdy    = 0.000;
+  	float _Kiy    = 0.000;
+  	float _max_iy = 0.050;
 
-	/* ===============
-		Mission Timer
-	   =============== */
-	float _mission_time = 5.; // seconds
-	bool _mission_timeout = false;
+    float _Kpz    = 0.002;
+    float _Kdz    = 0.000;
+    float _Kiz    = 0.000;
+    float _max_iz = 0.050;
+    
+  	/* ===============
+  		  Mission Timer
+  	   =============== */
+  	float _mission_time = 5.; // seconds
+  	bool _mission_timeout = false;
 
-	/* ==============
-		Arduino Data
-	   ============== */
-	float _copter_alt = 0.;
-	bool _switch_status = false;
+  	/* ==============
+  		  Arduino Data
+  	   ============== */
+  	float _copter_alt = 0.;
+  	bool _switch_status = false;
 };
 
 } // namespace UAV
