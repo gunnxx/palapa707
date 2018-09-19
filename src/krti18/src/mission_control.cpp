@@ -15,6 +15,36 @@
 int mission_type;
 void mission_type_callback (const krti18::Mission& data);
 
+/*	=============================================
+					COPTER HEIGHT
+
+	height_up	------------------------------
+													---------------+---------------
+												          ___ /^^[___              _
+												         /|^+----+   |#___________//
+												       ( -+ |____|   _______-----+/
+												        ==_________--'            \
+												          ~_|___|__
+	height_down	------------------------------
+
+	height_drop	------------------------------
+
+	height_mp	------------------------------
+							====
+							|MP|
+							====
+							 ++
+							 ++
+							 ++
+							 ++
+							 ==
+							====
+	============================================= */
+float height_up   = 400.;
+float height_down = 200.;
+float height_drop = 170.;
+float height_mp   = 150.;
+
 int main (int argc, char **argv)
 {
 	ros::init(argc, argv, "mission_control");
@@ -54,9 +84,9 @@ int main (int argc, char **argv)
 			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
 
 			palapa707.go_center();
-			//palapa707.go_down(height_drop);
-			//palapa707.drop();
-			//palapa707.go_up(height_up);
+			palapa707.change_height(height_drop);
+			palapa707.drop();
+			palapa707.change_height(height_up);
 
 			flight_mode.request.custom_mode = "AUTO";
 			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to AUTO");
@@ -78,7 +108,7 @@ int main (int argc, char **argv)
 			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
 			
 			palapa707.go_center();
-			//palapa707.go_down(height_down);
+			palapa707.change_height(height_down);
 
 			flight_mode.request.custom_mode = "LOITER";
 			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
@@ -99,9 +129,9 @@ int main (int argc, char **argv)
 			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
 			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
 
-			//palapa707.go_down(height_mp);
-			//palapa707.go_center_stable_height(); // Centering to get the MP
-			//palapa707.go_up(height_up);
+			palapa707.change_height(height_mp);
+			palapa707.go_center(); // Centering to get the MP
+			palapa707.change_height(height_up);
 
 			flight_mode.request.custom_mode = "AUTO";
 			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to AUTO");

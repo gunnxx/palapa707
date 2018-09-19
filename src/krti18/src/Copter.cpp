@@ -83,7 +83,15 @@ void Copter::go_center(){
 	_mission_timeout = false;
 }
 
-void Copter::go_down(float desired_alt){
+void Copter::drop(){
+	/*
+
+	ACTUATOR DOES SOMETHING HERE
+
+	*/
+}
+
+void Copter::change_height(float desired_alt){
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative

@@ -18,7 +18,8 @@ class Copter {
   		  Copter movement method
   	   ======================== */
   	void go_center();
-    void go_down(float desired_alt);
+    void drop();
+    void change_height(float desired_alt);
 
   	/* ==========
   		  Callback
