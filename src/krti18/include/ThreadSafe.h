@@ -9,7 +9,7 @@ class ThreadSafe {
   private:
   	datatype _data;
   	std::mutex _m;
-}
+};
 
 template <class datatype>
 datatype &ThreadSafe<datatype>::access_data(){
