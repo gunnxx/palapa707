@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/Documents/auav/palapa707/install
+
+Name: krti18
+Description: Description of krti18
+Version: 0.0.0
+Cflags: -I/home/ubuntu/Documents/auav/palapa707/install/include
+Libs: -L/home/ubuntu/Documents/auav/palapa707/install/lib 
+Requires: message_runtime
