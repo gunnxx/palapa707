@@ -7,6 +7,14 @@
 #include "std_msgs/Int8.h"
 #include "krti18/Shape.h"
 
+// "Orange" color HSV parameter
+int lH = 0;
+int hH = 100;
+int lS = 0;
+int hS = 100;
+int lV = 0;
+int hV = 100;
+
 // Flag of what things should be detected
 int cv_flag;
 void cv_flag_callback (const std_msgs::Int8& flag);
@@ -57,25 +65,25 @@ int main(int argc, char **argv) {
 		if (cv_flag == -1 ) {
 			break;
 		} else if (cv_flag == 1) {
-			detector.findCircles(src, shape);
+			detector.findCircle(src, shape);
 			
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 2) {
-			detector.findSquares(src, shape);
+			detector.findSquare(src, shape);
 
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 3) {
-			detector.findCircles(src, shape);
+			detector.findColor(src, shape, lH, hH, lS, sS, lV, hV);
 			
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 4) {
-			detector.findSquares(src, shape);
+			detector.findSquare(src, shape);
 
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);

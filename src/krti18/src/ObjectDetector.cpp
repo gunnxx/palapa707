@@ -68,8 +68,8 @@ ObjectDetector::ObjectDetector(){};
   Why smallest?
   According to observation, the best detected square is the smallest one
 */
-void ObjectDetector::findSquares(const cv::Mat& image,
-                                 cv::Vec3f &square){
+void ObjectDetector::findSquare(const cv::Mat& image,
+                                cv::Vec3f &square){
   int thresh = 50, N = 11;
 
   std::vector<cv::Point> best_approx;
@@ -169,8 +169,8 @@ void ObjectDetector::findSquares(const cv::Mat& image,
   Why smallest?
   According to observation, the best detected circle is the smallest one
 */
-void ObjectDetector::findCircles(const cv::Mat& image,
-                                 cv::Vec3f &circle){
+void ObjectDetector::findCircle(const cv::Mat& image,
+                                cv::Vec3f &circle){
     // Variables init
     cv::Mat gray, res;
     const int morph_size = 2;
@@ -205,20 +205,53 @@ void ObjectDetector::findCircles(const cv::Mat& image,
     }
 }
 
-/*
-*/
-void ObjectDetector::drawSquares(cv::Mat& image,
-                                 const cv::Vec3f &square){
+void ObjectDetector::findColor(const cv::Mat& image,
+                               cv::Vec3f &color,
+                               int lH, int hH,
+                               int lS, int hS,
+                               int lV, int hV){
+    // Variables init
+    cv::Mat hsv;
+
+    cv::cvtColor(image, hsv, cv::COLOR_RGB2HSV);
+    cv::inRange(hsv, cv::Scalar(lH, lS, lV), cv::Scalar(hH, hS, hV), hsv);
+
+    cv::erode(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+    cv::dilate(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+
+    cv::erode(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+    cv::dilate(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+
+    cv::Moments oMoments = cv::moments(hsv);
+
+    double M01 = oMoments.m01;
+    double M10 = oMoments.m10;
+    double Area = oMoments.m00;
+
+    if(Area > 1000){
+      color[0] = M10/Area;
+      color[1] = M01/Area;
+    }
+}
+
+void ObjectDetector::drawSquare(cv::Mat& image,
+                                const cv::Vec3f &square){
   cv::Point center(std::round(square[0]), std::round(square[1]));
   int radius = std::round(square[2]);
   cv::circle(image, center, 3, cv::Scalar(0,255,0), -1, 8, 0);
   cv::circle(image, center, radius, cv::Scalar(0,0,255), 3, 8, 0);
 }
 
-void ObjectDetector::drawCircles(cv::Mat& image,
-                                 const cv::Vec3f &circle){
+void ObjectDetector::drawCircle(cv::Mat& image,
+                                const cv::Vec3f &circle){
   cv::Point center(std::round(circle[0]),std::round(circle[1]));
   int radius = std::round(circle[2]);
   cv::circle(image, center, 3, cv::Scalar(0,255,0), -1, 8, 0);
   cv::circle(image, center, radius, cv::Scalar(0,0,255), 3, 8, 0);
+}
+
+void ObjectDetector::markColor(cv::Mat& image,
+                               const cv::Vec3f &color){
+  cv::Point center(std::round(color[0]), std::round(color[1]));
+  cv::circle(image, center, 3, cv::Scalar(0,255,0), -1, 8, 0);
 }

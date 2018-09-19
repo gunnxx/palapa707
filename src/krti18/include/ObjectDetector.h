@@ -13,14 +13,21 @@ namespace vision {
 class ObjectDetector{
   public:
   	ObjectDetector();
-  	void findSquares(const cv::Mat& image,
-  					         cv::Vec3f &square);
-  	void findCircles(const cv::Mat& image,
-  					         cv::Vec3f &circle);
-  	void drawSquares(cv::Mat& image,
-  					         const cv::Vec3f &square);
-  	void drawCircles(cv::Mat& image,
-  					         const cv::Vec3f &circle);
+  	void findSquare(const cv::Mat& image,
+  					        cv::Vec3f &square);
+  	void findCircle(const cv::Mat& image,
+  					        cv::Vec3f &circle);
+    void findColor(const cv::Mat& image,
+                   cv::Vec3f &color,
+                   int lH, int hH,
+                   int lS, int hS,
+                   int lV, int hV);
+  	void drawSquare(cv::Mat& image,
+  					        const cv::Vec3f &square);
+  	void drawCircle(cv::Mat& image,
+  					        const cv::Vec3f &circle);
+    void markColor(cv::Mat& image,
+                   const cv::Vec3f &color);
 };
 
 } // namespace obj
