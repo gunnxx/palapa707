@@ -33,14 +33,19 @@ int main(int argc, char **argv) {
 	cv_flag.data = 2;
 	cv_flag_publisher.publish(cv_flag);
 
+	ros::Rate rate(20);		// 20 Hz
 	ROS_INFO("Checker activates");
+
 	while(ros::ok()){
 		ros::spinOnce();
 
 		std_msgs::Int32 count;
 		count.data = count_validate;
 		count_validate_publisher.publish(count);
+
+		rate.sleep();
 	}
+	
 	return 0;
 }
 

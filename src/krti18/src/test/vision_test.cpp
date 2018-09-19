@@ -1,4 +1,7 @@
+#include <thread>
+
 #include "ObjectDetector.h"
+#include "ThreadSafe.h"
 
 #include "ros/ros.h"
 #include "std_msgs/Int8.h"
@@ -16,14 +19,22 @@ int RC_CH7_OFF = 900 + OFFSET;
 int RC_CH7_ON  = 2000 - OFFSET;
 void rc_in_callback (const mavros_msgs::RCIn& data);
 
+// Thread callback for capturing image
+bool close_thread = false;
+void cap_read (cv::VideoCapture &cap, ThreadSafe<cv::Mat> &image){
+	std::cout << "Thread is spawned!\n";
+	while(!close_thread) cap.read(image.access_data());
+	std::cout << "Thread is closed!\n";
+}
+
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "vision");
+	ros::init(argc, argv, "vision_test");
 	ros::NodeHandle nh;
 
 	cv::VideoCapture cap(0);
+	ThreadSafe<cv::Mat> image;
 
 	vision::ObjectDetector detector;
-	cv::Vec3f shape;
 
 	ros::Publisher  cv_target_publisher = nh.advertise<krti18::Shape>("cv_target", 1);
 	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
@@ -33,17 +44,20 @@ int main(int argc, char **argv) {
 	while( !(ros::ok() &&
 			 RC_IN_CH7 > RC_CH7_OFF)) ros::spinOnce();
 
+	// First read to prevent empty cv::Mat (thread takes time to init)
+	cap.read(image.access_data());
+	std::thread video_reader(cap_read, std::ref(cap), std::ref(image));
+
+	ros::Rate rate(20);		// 20 Hz
 	ROS_INFO("Starting vision");
-	int i = 0;
+
 	while (ros::ok()) {
 		ros::spinOnce();
 
-		cv::Mat image;
-		cap.read(image);
+		cv::Vec3f shape;
 		krti18::Shape target;
 
-		cv::imwrite(std::to_string(i)+".png", image);
-		i++;
+		cv::Mat src = image.get_data();
 
 		/*
 		-1 ==> BREAK THE LOOP (EFFECT OF fm_changer.cpp ONLY)
@@ -56,25 +70,25 @@ int main(int argc, char **argv) {
 		if (cv_flag == -1 ) {
 			break;
 		} else if (cv_flag == 1) {
-			detector.findCircles(image, shape);
+			detector.findCircles(src, shape);
 			
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 2) {
-			detector.findSquares(image, shape);
+			detector.findSquares(src, shape);
 
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 3) {
-			detector.findCircles(image, shape);
+			detector.findCircles(src, shape);
 			
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
 			target.r_obj = static_cast<int>(shape[2]);
 		} else if (cv_flag == 4) {
-			detector.findSquares(image, shape);
+			detector.findSquares(src, shape);
 
 			target.x_obj = static_cast<int>(shape[0]);
 			target.y_obj = static_cast<int>(shape[1]);
@@ -86,9 +100,12 @@ int main(int argc, char **argv) {
 		}
 
 		cv_target_publisher.publish(target);
+		rate.sleep();
 		
 	} // end of while(ros::ok())
 	
+	close_thread = true;
+	video_reader.join();
 	ROS_INFO("Vision is shutting down!");
 	
 	return 0;
