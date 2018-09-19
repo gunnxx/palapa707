@@ -41,8 +41,10 @@ void Copter::go_center(){
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
-	float old_x_err = _X_CAM - _safe_zone*_r_det - _x_det;
-	float old_y_err = _Y_CAM - _safe_zone*_r_det - _y_det;
+	float old_x_err = std::min(_X_CAM - _safe_zone*_r_det - _x_det,
+							   _X_CAM + _safe_zone*_r_det - _x_det);
+	float old_y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							   _Y_CAM + _safe_zone*_r_det - _y_det);
 
 	// Set Integral starting value
 	float ix_err = 0.;
@@ -52,8 +54,10 @@ void Copter::go_center(){
 		   !_mission_timeout && // Mission takes long time
 		   !_switch_status) {   // Limit switch trigerred
 		// Proportional error
-		float x_err = _X_CAM - _safe_zone*_r_det - _x_det;
-		float y_err = _Y_CAM - _safe_zone*_r_det - _y_det;
+		float x_err = std::min(_X_CAM - _safe_zone*_r_det - _x_det,
+							   _X_CAM + _safe_zone*_r_det - _x_det);
+		float y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							   _Y_CAM + _safe_zone*_r_det - _y_det);
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;
