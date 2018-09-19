@@ -9,7 +9,7 @@
 #include "krti18/State.h"
 
 // To validate object detection (act like timer)
-uint count_validate = 0;
+int count_validate = 0;
 const int validation_thresh = 40;
 
 // Mission status
@@ -125,7 +125,7 @@ int main (int argc, char **argv) {
 void cv_target_callback (const krti18::Shape& data) {
 	// If object detected
 	if (data.r_obj != 0) count_validate += 1;
-	else count_validate -= 2;
+	else count_validate = std::max(count_validate - 2, 0);
 }
 
 void rc_in_callback (const mavros_msgs::RCIn& data) {
