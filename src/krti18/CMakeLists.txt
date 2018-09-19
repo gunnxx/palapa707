@@ -76,3 +76,19 @@ add_dependencies(vision
 target_link_libraries(vision
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
+
+add_executable(vision_test
+	src/test/vision_test.cpp
+	${CLASS_DEF})
+add_dependencies(vision_test
+	krti18_generate_messages_cpp)
+target_link_libraries(vision_test
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
+add_executable(vision_threshold_checker
+	src/test/vision_threshold_checker.cpp)
+add_dependencies(vision_threshold_checker
+	krti18_generate_messages_cpp)
+target_link_libraries(vision_threshold_checker
+	${catkin_LIBRARIES})
