@@ -21,7 +21,6 @@ roslaunch_add_file_check(launch)
 
 ## Declare ROS messages and services
 add_message_files(FILES
-				  Ardu.msg
 				  Mission.msg
 				  Shape.msg
 				  State.msg)
@@ -45,6 +44,7 @@ set(CLASS_DEF
 	src/Copter.cpp)
 
 ## Add executable files
+# Main nodes
 add_executable(fm_changer
 	src/fm_changer.cpp)
 add_dependencies(fm_changer
@@ -77,6 +77,7 @@ target_link_libraries(vision
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
 
+# Test nodes
 add_executable(vision_test
 	src/test/vision_test.cpp
 	${CLASS_DEF})
@@ -92,3 +93,20 @@ add_dependencies(vision_threshold_checker
 	krti18_generate_messages_cpp)
 target_link_libraries(vision_threshold_checker
 	${catkin_LIBRARIES})
+
+add_executable(mission_control_test
+	src/test/mission_control_test.cpp
+	${CLASS_DEF})
+add_dependencies(mission_control_test
+	krti18_generate_messages_cpp)
+target_link_libraries(mission_control_test
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
+add_executable(record_video
+	src/test/record_video.cpp)
+add_dependencies(record_video
+	krti18_generate_messages_cpp)
+target_link_libraries(record_video
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
