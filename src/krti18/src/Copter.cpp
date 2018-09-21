@@ -2,40 +2,47 @@
 
 using namespace UAV;
 
-/* ========
-	PUBLIC
-   ======== */
+/* ===============================
+	CONSTRUCTOR AND DECONSTRUCTOR
+   =============================== */
 
 Copter::Copter(){
 	//ROS_INFO("COPTER IS CREATED!");
-	_cmd_vel_publisher       = _nh.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
-	_cv_target_subscriber    = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
-	_arduino_data_subscriber = _nh.subscribe("arduino_data", 10, &Copter::arduino_data_callback, this);
-	_mission_timer 			 = _nh.createTimer(ros::Duration(_mission_time), &Copter::timer_callback, this);
+	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
+	_lidar_alt_subscriber	  = _nh.subscribe("lidar_alt", 10, &Copter::lidar_alt_callback, this);
+	_switch_status_subscriber = _nh.subscribe("switch_status", 10, &Copter::switch_status_callback, this);
+	_mission_timer 			  = _nh.createTimer(ros::Duration(_mission_time), &Copter::timer_callback, this);
 }
 
 Copter::~Copter(){
 	//ROS_INFO("COPTER IS ERASED!");
 }
 
+/* ==========
+	CALLBACK
+   ========== */
 void Copter::cv_target_callback(const krti18::Shape& obj_loc){
 	_x_det = obj_loc.x_obj;
 	_y_det = obj_loc.y_obj;
 	_r_det = obj_loc.r_obj;
 }
 
-void Copter::arduino_data_callback(const krti18::Ardu& data){
-	_copter_alt = data.lidar_alt;
-	_switch_status = data.switch_status;
+void Copter::lidar_alt_callback(const std_msgs::Int16& data){
+	_copter_alt = data.data;
+}
+
+void Copter::switch_status_callback(const std_msgs::Bool& status){
+	_switch_status = status.data;
 }
 
 void Copter::timer_callback(const ros::TimerEvent& event){
 	bool _mission_timeout = true;
 }
 
-/* =========
-	PRIVATE
-   ========= */
+/* =================
+	MOVEMENT METHOD
+   ================= */
 
 void Copter::go_center(){
 	_mission_timer.start();
