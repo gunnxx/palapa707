@@ -2,6 +2,7 @@
 
 #include "std_msgs/Int8.h"
 #include "std_msgs/Int32.h"
+#include "krti18/Mission.h"
 #include "krti18/Shape.h"
 #include "mavros_msgs/RCIn.h"
 
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
 		ros::spinOnce();
 
 		if(mission_type == -1) break;
-		
+
 		std_msgs::Int32 count;
 		count.data = count_validate;
 		count_validate_publisher.publish(count);
