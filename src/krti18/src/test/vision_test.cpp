@@ -46,8 +46,9 @@ int main(int argc, char **argv) {
 
 	ros::Publisher  cv_target_publisher = nh.advertise<krti18::Shape>("cv_target", 1);
 	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
-	ros::Subscriber rc_in_subscriber 		= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
+	ros::Subscriber rc_in_subscriber 	= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
+	ROS_INFO("vision_test is waiting for Ch-7");
 	// Initial conditions need to be fulfilled (ch7 should ON)
 	while( !(ros::ok() &&
 			 RC_IN_CH7 > RC_CH7_OFF)) ros::spinOnce();
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
 	std::thread video_reader(cap_read, std::ref(cap), std::ref(image));
 
 	ros::Rate rate(20);		// 20 Hz
-	ROS_INFO("Starting vision");
+	ROS_INFO("Starting vision_test!");
 
 	while (ros::ok()) {
 		ros::spinOnce();
@@ -114,7 +115,7 @@ int main(int argc, char **argv) {
 	
 	close_thread = true;
 	video_reader.join();
-	ROS_INFO("Vision is shutting down!");
+	ROS_INFO("vision_test is shutting down!");
 	
 	return 0;
 }

@@ -39,7 +39,7 @@ int main (int argc, char **argv) {
 	ros::Subscriber rc_in_subscriber = nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
 	// Initial conditions needs to be fulfilled (ch7 should ON)
-	ROS_INFO("Waiting for channel-7");
+	ROS_INFO("fm_changer is waiting for Ch-7");
 	while( !(ros::ok() &&
 			 RC_IN_CH7 > RC_CH7_OFF) ) ros::spinOnce();
 
@@ -54,6 +54,8 @@ int main (int argc, char **argv) {
 		ROS_INFO("Flight mode changed to AUTO");
 	else
 		ROS_INFO("WARNING : Failed to change flight mode to AUTO");
+
+	ros::Rate rate(30);		// 30 Hz
 
 	while(ros::ok()){
 		ros::spinOnce();
@@ -81,8 +83,12 @@ int main (int argc, char **argv) {
 
 			break;
 		}
+
+		rate.sleep();
 	}
 
+	ROS_INFO("fm_changer is shutting down!");
+	
 	return 0;
 }
 

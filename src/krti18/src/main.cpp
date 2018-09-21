@@ -61,14 +61,15 @@ int main (int argc, char **argv) {
 	ros::Subscriber rc_in_subscriber 		= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 	ros::Subscriber copter_state_subscriber = nh.subscribe("copter_state", 1, copter_state_callback);
 
+	ROS_INFO("main is waiting for Ch-7");
 	// Initial conditions need to be fulfilled (ch7 should ON)
 	while( !(ros::ok() &&
 			 RC_IN_CH7 > RC_CH7_OFF)) ros::spinOnce();
 
 	// Sleep for 20 seconds before turning on CV to prevent detecting landing pad
-	ROS_INFO("Vision is waiting 20 seconds to prevent detecting landing pad.");
+	ROS_INFO("main.cpp\t: Vision is delayed for 20 seconds to prevent detecting landing pad.");
 	usleep(20000000);
-	ROS_INFO("Vision is ready!");
+	ROS_INFO("main.cpp\t: Vision is ready!");
 
 	// Initial cv_flag
 	int index_mission = 0;
@@ -76,6 +77,9 @@ int main (int argc, char **argv) {
 	std_msgs::Int8 cv_flag;
 	cv_flag.data = CV_FLAGS[index_cv];
 	cv_flag_publisher.publish(cv_flag);
+
+	ROS_INFO("main is starting!");
+	ros::Rate rate(30); 	// 30 Hz
 
 	while (ros::ok()) {
 		ros::spinOnce();
@@ -115,9 +119,13 @@ int main (int argc, char **argv) {
 			ROS_INFO("Current mission is done.");
 		}
 		
+		// If Ch-7 is turned off
+		if (RC_IN_CH7 < RC_CH7_ON) break;
+
+		rate.sleep();
 	} // end of while(ros::ok())
 	
-	ROS_INFO("main is shutting down");
+	ROS_INFO("main is shutting down!");
 	
 	return 0;
 }

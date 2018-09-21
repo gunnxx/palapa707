@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 	std::thread video_reader(cap_read, std::ref(cap), std::ref(image));
 
 	ros::Rate rate(20);		// 20 Hz
-	ROS_INFO("Starting vision");
+	ROS_INFO("vision.cpp : vision is ready!");
 
 	while (ros::ok()) {
 		ros::spinOnce();
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 	
 	close_thread = true;
 	video_reader.join();
-	ROS_INFO("Vision is shutting down!");
+	ROS_INFO("vision is shutting down!");
 	
 	return 0;
 }
