@@ -9,6 +9,8 @@ using namespace UAV;
 Copter::Copter(){
 	//ROS_INFO("COPTER IS CREATED!");
 	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+	_left_servo_publisher	  = _nh.advertise<std_msgs::Int16>("left_servo", 10);
+	_right_servo_publisher	  = _nh.advertise<std_msgs::Int16>("right_servo", 10);
 	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
 	_lidar_alt_subscriber	  = _nh.subscribe("lidar_alt", 10, &Copter::lidar_alt_callback, this);
 	_switch_status_subscriber = _nh.subscribe("switch_status", 10, &Copter::switch_status_callback, this);
@@ -95,11 +97,25 @@ void Copter::go_center(){
 }
 
 void Copter::drop(){
-	/*
+	std_msgs::Int16 left_servo_degree;
+	std_msgs::Int16 right_servo_degree;
 
-	ACTUATOR DOES SOMETHING HERE
+	left_servo_degree.data  = _drop_servo_degree;
+	right_servo_degree.data = _drop_servo_degree;
 
-	*/
+	_left_servo_publisher.publish(left_servo_degree);
+	_right_servo_publisher.publish(right_servo_degree);
+}
+
+void Copter::get(){
+	std_msgs::Int16 left_servo_degree;
+	std_msgs::Int16 right_servo_degree;
+
+	left_servo_degree.data  = _get_servo_degree;
+	right_servo_degree.data = _get_servo_degree;
+
+	_left_servo_publisher.publish(left_servo_degree);
+	_right_servo_publisher.publish(right_servo_degree);
 }
 
 void Copter::change_height(float desired_alt){

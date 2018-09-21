@@ -61,8 +61,20 @@ rostopic echo /cv_target
 # Check vx and vy
 rostopic echo /mavros/global_position/gp_vel
 ```
-> Some notes here
+> The default setpoints are `_X_CAM = 320` and `_Y_CAM = 240`. If you want to change the setpoints, change `_X_CAM` and `_Y_CAM` values in `include/Copter.h` according to your camera position in Copter and the resolution of your camera.
 
-<aside class="warning">
-	Failsafe used can be executed by turning off Channel-7. Turning off Channel-7 will change the flight mode to LOITER and all nodes will be closed.
-</aside>
+### Testing `UAV::Copter::drop()` and `UAV::Copter::get()` :
+Activate necessary nodes
+```shell
+roslaunch mavros apm.launch
+rosrun krti18 fm_changer
+rosrun krti18 mission_control_test
+
+## Choose one
+rostopic pub /mission_type krti18/Mission "mission_type : 3"	# drop()
+rostopic pub /mission_type krti18/Mission "mission_type : 4"	# get()
+```
+> The default servo degrees are `_drop_servo_degree = 0` and `_get_servo_degree  = 120`. If you want to change the servo degrees, change `_get_servo_degree` and `_drop_servo_degree` values in `include/Copter.h` according to your desired servo configuration.
+
+## Notes
+Failsafe can be executed by turning off Channel-7. Turning off Channel-7 will change the flight mode to `LOITER` and all nodes will be closed.

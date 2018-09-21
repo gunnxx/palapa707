@@ -33,11 +33,16 @@ class Copter {
 
   private:
   	ros::NodeHandle _nh;
-  	ros::Publisher  _cmd_vel_publisher;
-  	ros::Subscriber _cv_target_subscriber;
+  	
+    ros::Publisher  _cmd_vel_publisher;
+    ros::Publisher  _left_servo_publisher;
+    ros::Publisher  _right_servo_publisher;
+  	
+    ros::Subscriber _cv_target_subscriber;
   	ros::Subscriber _lidar_alt_subscriber;
     ros::Subscriber _switch_status_subscriber;
-  	ros::Timer 		  _mission_timer;
+  	
+    ros::Timer 		  _mission_timer;
 
   	/* ====================================
     		Detected Object (Square or Circle)
@@ -83,8 +88,10 @@ class Copter {
   	/* ==============
   		  Arduino Data
   	   ============== */
-  	float _copter_alt = 0.;
-  	bool _switch_status = false;
+  	bool _switch_status     = false;
+    int  _copter_alt        = 0.;
+    int  _drop_servo_degree = 0;
+    int  _get_servo_degree  = 120;
 };
 
 } // namespace UAV
