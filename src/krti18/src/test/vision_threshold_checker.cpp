@@ -16,10 +16,6 @@ int RC_CH7_OFF = 900 + OFFSET;
 int RC_CH7_ON  = 2000 - OFFSET;
 void rc_in_callback (const mavros_msgs::RCIn& data);
 
-// Mission type as to what movement to execute
-int mission_type;
-void mission_type_callback (const krti18::Mission& data);
-
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "vision_threshold_checker");
 	ros::NodeHandle nh;
@@ -29,7 +25,6 @@ int main(int argc, char **argv) {
 
 	ros::Subscriber cv_target_subscriber 	= nh.subscribe("cv_target", 1, cv_target_callback);
 	ros::Subscriber rc_in_subscriber 		= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
-	ros::Subscriber mission_type_subscriber = nh.subscribe("mission_type", 1, mission_type_callback);
 
 	ROS_INFO("vision_threshold_checker is waiting for Ch-7");
 	// Initial conditions need to be fulfilled (ch7 should ON)
@@ -46,7 +41,7 @@ int main(int argc, char **argv) {
 	while(ros::ok()){
 		ros::spinOnce();
 
-		if(mission_type == -1) break;
+		if(RC_IN_CH7 < RC_CH7_ON) break;
 
 		std_msgs::Int32 count;
 		count.data = count_validate;
@@ -68,8 +63,4 @@ void cv_target_callback (const krti18::Shape& data) {
 
 void rc_in_callback (const mavros_msgs::RCIn& data) {
 	RC_IN_CH7 = data.channels[6];
-}
-
-void mission_type_callback (const krti18::Mission& data) {
-	mission_type = data.mission_type;
 }

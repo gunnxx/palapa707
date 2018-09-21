@@ -110,3 +110,12 @@ add_dependencies(record_video
 target_link_libraries(record_video
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
+
+add_executable(servo_test
+	src/test/servo_test.cpp
+	${CLASS_DEF})
+add_dependencies(servo_test
+	krti18_generate_messages_cpp)
+target_link_libraries(servo_test
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})

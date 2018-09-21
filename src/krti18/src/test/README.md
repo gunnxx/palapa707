@@ -6,7 +6,6 @@ All tests are using Channel-7 as trigger. Run below command first and the node w
 Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
-rosrun krti18 fm_changer
 rosrun krti18 vision_test
 rosrun krti18 vision_threshold_checker
 ```
@@ -21,7 +20,6 @@ rostopic echo /cv_target		# optional
 Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
-rosrun krti18 fm_changer
 rosrun krti18 record_video
 ```
 > The default is (width, height, fps) = (640, 480, 30). Adjust the parameters `frame_width`, `frame_height`, and `fps` in `record_video.cpp` according to your camera spec and your desired performance.
@@ -43,6 +41,7 @@ rostopic echo /lidar_alt
 rostopic echo /mavros/global_position/gp_vel
 ```
 > The default desired altitude is 200 cm. If you  want to change the desired altitude, change `height_desired` value in `mission_control_test.cpp`.
+> Make sure Arduino who sends lidar data to `lidar_alt` topic is set.
 
 ### Testing `UAV::Copter::go_center()` :
 Activate necessary nodes
@@ -67,14 +66,10 @@ rostopic echo /mavros/global_position/gp_vel
 Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
-rosrun krti18 fm_changer
-rosrun krti18 mission_control_test
-
-## Choose one
-rostopic pub /mission_type krti18/Mission "mission_type : 3"	# drop()
-rostopic pub /mission_type krti18/Mission "mission_type : 4"	# get()
+rosrun krti18 servo_test
 ```
 > The default servo degrees are `_drop_servo_degree = 0` and `_get_servo_degree  = 120`. If you want to change the servo degrees, change `_get_servo_degree` and `_drop_servo_degree` values in `include/Copter.h` according to your desired servo configuration.
 
 ## Notes
-Failsafe can be executed by turning off Channel-7. Turning off Channel-7 will change the flight mode to `LOITER` and all nodes will be closed.
+- Failsafe can be executed by turning off Channel-7. Turning off Channel-7 will change the flight mode to `LOITER` and all nodes will be closed.
+- Calibrating `validation_threshold`, recording video, and testing `UAV::Copter::drop()` and `UAV::Copter::get()` don't require flight mode changing.

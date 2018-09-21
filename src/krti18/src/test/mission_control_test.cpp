@@ -18,8 +18,7 @@ void rc_in_callback (const mavros_msgs::RCIn& data);
 // Height reference in cm
 float height_desired   = 200.;
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
 	ros::init(argc, argv, "mission_control_test");
 	ros::NodeHandle nh;
 
@@ -83,48 +82,6 @@ int main (int argc, char **argv)
 			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
 			
 			palapa707.change_height(height_desired);
-
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
-
-			state.doing_mission = false;
-			copter_state_publisher.publish(state);
-
-			// Sleep to wait main.cpp change the value of mission_type
-			usleep(200);
-		}
-
-		else if (mission_type == 3) {
-			state.doing_mission = true;
-			copter_state_publisher.publish(state);
-
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-
-			palapa707.drop();
-
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
-
-			state.doing_mission = false;
-			copter_state_publisher.publish(state);
-
-			// Sleep to wait main.cpp change the value of mission_type
-			usleep(200);
-		}
-
-		else if (mission_type == 4) {
-			state.doing_mission = true;
-			copter_state_publisher.publish(state);
-
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-
-			palapa707.get();
 
 			flight_mode.request.custom_mode = "LOITER";
 			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");

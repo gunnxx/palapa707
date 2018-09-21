@@ -19,10 +19,6 @@ int RC_CH7_OFF = 900 + OFFSET;
 int RC_CH7_ON  = 2000 - OFFSET;
 void rc_in_callback (const mavros_msgs::RCIn& data);
 
-// Flag to close this recorder
-int cv_flag;
-void cv_flag_callback (const std_msgs::Int8& flag);
-
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "record_video");
 	ros::NodeHandle nh;
@@ -38,7 +34,6 @@ int main(int argc, char **argv) {
 	cap.set(cv::CAP_PROP_FRAME_WIDTH, frame_width);
 	cap.set(cv::CAP_PROP_FRAME_HEIGHT, frame_height);
 
-	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
 	ros::Subscriber rc_in_subscriber = nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
 	ROS_INFO("record_video is waiting for Ch-7");
@@ -52,7 +47,7 @@ int main(int argc, char **argv) {
 	while(ros::ok()){
 		ros::spinOnce();
 
-		if(cv_flag == -1) break;
+		if(RC_IN_CH7 < RC_CH7_ON) break;
 
 		cv::Mat src;
 		cap.read(src);
@@ -64,10 +59,6 @@ int main(int argc, char **argv) {
 	ROS_INFO("record_video is shutting down!");
 
 	return 0;
-}
-
-void cv_flag_callback (const std_msgs::Int8& flag) {
-	cv_flag = flag.data;
 }
 
 void rc_in_callback (const mavros_msgs::RCIn& data) {

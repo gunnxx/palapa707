@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 		 4 ==> DROP MP  (KOTAK HIJAU, KOTAK OREN)
 		 else ==> DETECT NOTHING
 		*/
-		if (cv_flag == -1 ) {
+		if (cv_flag == -1 || RC_IN_CH7 < RC_CH7_ON) {
 			break;
 		} else if (cv_flag == 1) {
 			detector.findCircle(src, shape);
