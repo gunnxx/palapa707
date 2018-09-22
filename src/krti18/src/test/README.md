@@ -29,7 +29,7 @@ Activate necesary nodes
 ```shell
 roslaunch mavros apm.launch
 rosrun rosserial_server serial_node
-rosrun krti18 fm_changer
+rosrun krti18 fm_changer_test
 rosrun krti18 mission_control_test
 rostopic pub /mission_type krti18/Mission "mission_type : 2"
 ```
@@ -37,6 +37,9 @@ Observe the following data
 ```shell
 # Subtract with desired_alt = error_z
 rostopic echo /lidar_alt
+
+# Check given vz
+rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
 
 # Check vz
 rostopic echo /mavros/global_position/gp_vel
@@ -48,7 +51,7 @@ rostopic echo /mavros/global_position/gp_vel
 Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
-rosrun krti18 fm_changer
+rosrun krti18 fm_changer_test
 rosrun krti18 vision_test
 rosrun krti18 mission_control_test
 rostopic pub /mission_type krti18/Mission "mission_type : 1"
@@ -57,6 +60,9 @@ Observe the following data
 ```shell
 # Subtract with _X_CAM and _Y_CAM to get error_x and error_y
 rostopic echo /cv_target
+
+# Check given vx and vy
+rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
 
 # Check vx and vy
 rostopic echo /mavros/global_position/gp_vel
