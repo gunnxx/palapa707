@@ -28,6 +28,7 @@ rosrun krti18 record_video
 Activate necesary nodes
 ```shell
 roslaunch mavros apm.launch
+rosrun rosserial_server serial_node
 rosrun krti18 fm_changer
 rosrun krti18 mission_control_test
 rostopic pub /mission_type krti18/Mission "mission_type : 2"
@@ -66,6 +67,7 @@ rostopic echo /mavros/global_position/gp_vel
 Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
+rosrun rosserial_server serial_node
 rosrun krti18 servo_test
 ```
 > The default servo degrees are `_drop_servo_degree = 0` and `_get_servo_degree  = 120`. If you want to change the servo degrees, change `_get_servo_degree` and `_drop_servo_degree` values in `include/Copter.h` according to your desired servo configuration.
