@@ -130,6 +130,8 @@ void Copter::change_height(float desired_alt){
 	while (ros::ok() &&
 		   !_mission_timeout && // Mission takes long time
 		   !_switch_status) {   // Limit switch trigerred
+		ros::spinOnce();
+		
 		// Proportional error
 		float z_err = desired_alt - _copter_alt;
 

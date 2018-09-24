@@ -119,3 +119,10 @@ add_dependencies(servo_test
 target_link_libraries(servo_test
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
+	
+add_executable(fm_changer_test
+	src/test/fm_changer_test.cpp)
+add_dependencies(fm_changer_test
+	krti18_generate_messages_cpp)
+target_link_libraries(fm_changer_test
+	${catkin_LIBRARIES})
