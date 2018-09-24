@@ -21,7 +21,7 @@ class Copter {
   	void go_center();
     void drop();
     void get();
-    void change_height(float desired_alt);
+    void change_height(int desired_alt);
 
   	/* ==========
   		  Callback

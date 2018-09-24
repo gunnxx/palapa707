@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#include <iostream>
 using namespace UAV;
 
 /* ===============================
@@ -118,7 +118,7 @@ void Copter::get(){
 	_right_servo_publisher.publish(right_servo_degree);
 }
 
-void Copter::change_height(float desired_alt){
+void Copter::change_height(int desired_alt){
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
@@ -146,6 +146,8 @@ void Copter::change_height(float desired_alt){
 
 		// Update old value
 		old_z_err = z_err;
+
+		std::cout << "u_z : " << u_z << std::endl;
 
 		// Publish output value (velocity that moves the copter)
 		geometry_msgs::Twist vel;
