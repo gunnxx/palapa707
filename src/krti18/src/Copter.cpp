@@ -1,5 +1,5 @@
 #include "Copter.h"
-#include <iostream>
+
 using namespace UAV;
 
 /* ===============================
@@ -8,7 +8,7 @@ using namespace UAV;
 
 Copter::Copter(){
 	//ROS_INFO("COPTER IS CREATED!");
-	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 10);
 	_left_servo_publisher	  = _nh.advertise<std_msgs::Int16>("left_servo", 10);
 	_right_servo_publisher	  = _nh.advertise<std_msgs::Int16>("right_servo", 10);
 	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
@@ -47,6 +47,8 @@ void Copter::timer_callback(const ros::TimerEvent& event){
    ================= */
 
 void Copter::go_center(){
+	ros::Rate temp_rate(30); // 30Hz
+	
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
@@ -62,6 +64,8 @@ void Copter::go_center(){
 	while (ros::ok() &&
 		   !_mission_timeout && // Mission takes long time
 		   !_switch_status) {   // Limit switch trigerred
+		ros::spinOnce();
+		
 		// Proportional error
 		float x_err = std::min(_X_CAM - _safe_zone*_r_det - _x_det,
 							   _X_CAM + _safe_zone*_r_det - _x_det);
@@ -85,10 +89,14 @@ void Copter::go_center(){
 		old_y_err = y_err;
 
 		// Publish output value (velocity that moves the copter)
-		geometry_msgs::Twist vel;
-		vel.linear.x = u_x;
-		vel.linear.y = u_y;
+		geometry_msgs::TwistStamped vel;
+		vel.header.stamp = ros::Time::now();
+		vel.header.frame_id = "1";
+		vel.twist.linear.x = u_x;
+		vel.twist.linear.y = u_y;
 		_cmd_vel_publisher.publish(vel);
+		
+		temp_rate.sleep();
 	}
 
 	// Reset timer
@@ -119,10 +127,14 @@ void Copter::get(){
 }
 
 void Copter::change_height(int desired_alt){
+	ros::Rate temp_rate(30);
+	
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
-	float old_z_err = desired_alt - _copter_alt;
+	// 5 is tolerable error in cm (offset)
+	float old_z_err = std::min(desired_alt - 5 - _copter_alt,
+							   desired_alt + 5 - _copter_alt);
 
 	// Set Integral starting value
 	float iz_err = 0.;
@@ -133,7 +145,8 @@ void Copter::change_height(int desired_alt){
 		ros::spinOnce();
 		
 		// Proportional error
-		float z_err = desired_alt - _copter_alt;
+		float z_err = std::min(desired_alt - 5 - _copter_alt,
+							   desired_alt + 5 - _copter_alt);
 
 		// Derivative error
 		float dz_err = z_err - old_z_err;
@@ -147,12 +160,14 @@ void Copter::change_height(int desired_alt){
 		// Update old value
 		old_z_err = z_err;
 
-		std::cout << "u_z : " << u_z << std::endl;
-
 		// Publish output value (velocity that moves the copter)
-		geometry_msgs::Twist vel;
-		vel.linear.z = u_z;
+		geometry_msgs::TwistStamped vel;
+		vel.header.stamp = ros::Time::now();
+		vel.header.frame_id = "1";
+		vel.twist.linear.z = u_z;
 		_cmd_vel_publisher.publish(vel);
+		
+		temp_rate.sleep();
 	}
 
 	// Reset timer
