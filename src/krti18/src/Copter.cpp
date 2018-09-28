@@ -11,10 +11,13 @@ Copter::Copter(){
 	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 10);
 	_left_servo_publisher	  = _nh.advertise<std_msgs::Int16>("left_servo", 10);
 	_right_servo_publisher	  = _nh.advertise<std_msgs::Int16>("right_servo", 10);
+	
 	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
 	_lidar_alt_subscriber	  = _nh.subscribe("lidar_alt", 10, &Copter::lidar_alt_callback, this);
 	_switch_status_subscriber = _nh.subscribe("switch_status", 10, &Copter::switch_status_callback, this);
+	
 	_mission_timer 			  = _nh.createTimer(ros::Duration(_mission_time), &Copter::timer_callback, this);
+	_mission_timer.stop();
 }
 
 Copter::~Copter(){
@@ -39,7 +42,7 @@ void Copter::switch_status_callback(const std_msgs::Bool& status){
 }
 
 void Copter::timer_callback(const ros::TimerEvent& event){
-	bool _mission_timeout = true;
+	_mission_timeout = true;
 }
 
 /* =================
@@ -49,6 +52,7 @@ void Copter::timer_callback(const ros::TimerEvent& event){
 void Copter::go_center(){
 	ros::Rate temp_rate(30); // 30Hz
 	
+	_mission_timer.setPeriod(ros::Duration(_mission_time));
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
@@ -98,6 +102,8 @@ void Copter::go_center(){
 		
 		temp_rate.sleep();
 	}
+	
+	if(_mission_timeout) ROS_INFO("Mission Timeout!");
 
 	// Reset timer
 	_mission_timer.stop();
@@ -105,30 +111,25 @@ void Copter::go_center(){
 }
 
 void Copter::drop(){
-	std_msgs::Int16 left_servo_degree;
-	std_msgs::Int16 right_servo_degree;
+	std_msgs::Int16 servo_degree;
+	servo_degree.data  = _drop_servo_degree;
 
-	left_servo_degree.data  = _drop_servo_degree;
-	right_servo_degree.data = _drop_servo_degree;
-
-	_left_servo_publisher.publish(left_servo_degree);
-	_right_servo_publisher.publish(right_servo_degree);
+	_left_servo_publisher.publish(servo_degree);
+	_right_servo_publisher.publish(servo_degree);
 }
 
 void Copter::get(){
-	std_msgs::Int16 left_servo_degree;
-	std_msgs::Int16 right_servo_degree;
+	std_msgs::Int16 servo_degree;
+	servo_degree.data  = _get_servo_degree;
 
-	left_servo_degree.data  = _get_servo_degree;
-	right_servo_degree.data = _get_servo_degree;
-
-	_left_servo_publisher.publish(left_servo_degree);
-	_right_servo_publisher.publish(right_servo_degree);
+	_left_servo_publisher.publish(servo_degree);
+	_right_servo_publisher.publish(servo_degree);
 }
 
 void Copter::change_height(int desired_alt){
 	ros::Rate temp_rate(30);
 	
+	_mission_timer.setPeriod(ros::Duration(_mission_time));
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
@@ -169,7 +170,9 @@ void Copter::change_height(int desired_alt){
 		
 		temp_rate.sleep();
 	}
-
+	
+	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	
 	// Reset timer
 	_mission_timer.stop();
 	_mission_timeout = false;

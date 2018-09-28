@@ -82,7 +82,7 @@ class Copter {
   	/* ===============
   		  Mission Timer
   	   =============== */
-  	const float _mission_time = 5.; // seconds
+  	const float _mission_time = 20.; // seconds
   	bool _mission_timeout = false;
 
   	/* ==============

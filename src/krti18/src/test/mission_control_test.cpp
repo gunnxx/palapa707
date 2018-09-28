@@ -16,7 +16,7 @@ int RC_CH7_ON  = 2000 - OFFSET;
 void rc_in_callback (const mavros_msgs::RCIn& data);
 
 // Height reference in cm
-float height_desired   = 200.;
+float height_desired   = 350.;
 
 int main (int argc, char **argv) {
 	ros::init(argc, argv, "mission_control_test");
@@ -69,8 +69,7 @@ int main (int argc, char **argv) {
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
 
-			// Sleep to wait main.cpp change the value of mission_type
-			usleep(200);
+			mission_type = 0;
 		}
 
 		else if (mission_type == 2) {
@@ -90,8 +89,7 @@ int main (int argc, char **argv) {
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
 
-			// Sleep to wait main.cpp change the value of mission_type
-			usleep(200);
+			mission_type = 0;
 		}
 
 		rate.sleep();
