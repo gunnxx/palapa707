@@ -91,7 +91,7 @@ class Copter {
   	bool _switch_status     = false;
     int  _copter_alt        = 0.;
     int  _drop_servo_degree = 0;
-    int  _get_servo_degree  = 120;
+    int  _get_servo_degree  = 90;
 };
 
 } // namespace UAV

@@ -39,7 +39,7 @@ Observe the following data
 rostopic echo /lidar_alt
 
 # Check given vz
-rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
+rostopic echo /mavros/setpoint_velocity/cmd_vel
 
 # Check vz
 rostopic echo /mavros/global_position/gp_vel
@@ -52,9 +52,10 @@ Activate necessary nodes
 ```shell
 roslaunch mavros apm.launch
 rosrun krti18 fm_changer_test
-rosrun krti18 vision_test
+rosrun krti18 vision_test_no_thread
 rosrun krti18 mission_control_test
 rostopic pub /mission_type krti18/Mission "mission_type : 1"
+rostopic pub /cv_flag std_msgs/Int8 "data : 3"
 ```
 Observe the following data
 ```shell
@@ -62,12 +63,13 @@ Observe the following data
 rostopic echo /cv_target
 
 # Check given vx and vy
-rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
+rostopic echo /mavros/setpoint_velocity/cmd_vel
 
 # Check vx and vy
 rostopic echo /mavros/global_position/gp_vel
 ```
 > The default setpoints are `_X_CAM = 320` and `_Y_CAM = 240`. If you want to change the setpoints, change `_X_CAM` and `_Y_CAM` values in `include/Copter.h` according to your camera position in Copter and the resolution of your camera.
+> `cv_flag` is adjusting detection method
 
 ### Testing `UAV::Copter::drop()` and `UAV::Copter::get()` :
 Activate necessary nodes

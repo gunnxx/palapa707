@@ -6,12 +6,12 @@
 #include "mavros_msgs/RCIn.h"
 
 // "Orange" color HSV parameter
-int lH = 0;
-int hH = 100;
-int lS = 0;
-int hS = 100;
-int lV = 0;
-int hV = 100;
+int lH = 80;
+int hH = 140;
+int lS = 30;
+int hS = 255;
+int lV = 235;
+int hV = 255;
 
 // Flag of what things should be detected
 int cv_flag;

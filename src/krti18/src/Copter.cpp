@@ -61,6 +61,9 @@ void Copter::go_center(){
 	float old_y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							   _Y_CAM + _safe_zone*_r_det - _y_det);
 
+	// Adjust camera orientation
+	old_x_err *= -1;
+
 	// Set Integral starting value
 	float ix_err = 0.;
 	float iy_err = 0.;
@@ -75,6 +78,9 @@ void Copter::go_center(){
 							   _X_CAM + _safe_zone*_r_det - _x_det);
 		float y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							   _Y_CAM + _safe_zone*_r_det - _y_det);
+
+		// Adjust camera orientation
+		x_err *= -1;
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;

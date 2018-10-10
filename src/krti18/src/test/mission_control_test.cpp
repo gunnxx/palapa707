@@ -48,8 +48,9 @@ int main (int argc, char **argv) {
 		ros::spinOnce();
 		/*
 		-1 ==> BREAK
-		 2 ==> CENTER
-		 3 ==> HEIGHT
+		 1 ==> CENTER
+		 2 ==> HEIGHT
+		 3 ==> PARTIAL-MISSION
 		*/
 		if (mission_type == -1) break;
 		

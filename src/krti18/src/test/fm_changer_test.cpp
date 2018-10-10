@@ -63,8 +63,6 @@ int main (int argc, char **argv) {
 		CHANNEL 7 IS UN-TRIGGERED AND IN GUIDED/AUTO MODE -> CHANGE TO STABILIZE
 		*/
 		if (RC_IN_CH7 < RC_CH7_ON) {
-			mavros_msgs::SetMode flight_mode;
-			flight_mode.request.base_mode = 0;
 			flight_mode.request.custom_mode = "LOITER";
 
 			if (set_mode_client.call(flight_mode))
