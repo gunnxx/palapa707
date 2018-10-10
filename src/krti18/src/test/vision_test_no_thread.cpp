@@ -1,7 +1,4 @@
-#include <thread>
-
 #include "ObjectDetector.h"
-#include "ThreadSafe.h"
 
 #include "ros/ros.h"
 #include "std_msgs/Int8.h"
@@ -27,50 +24,33 @@ int RC_CH7_OFF = 900 + OFFSET;
 int RC_CH7_ON  = 2000 - OFFSET;
 void rc_in_callback (const mavros_msgs::RCIn& data);
 
-// Thread callback for capturing image
-bool close_thread = false;
-void cap_read (cv::VideoCapture &cap, ThreadSafe<cv::Mat> &image){
-	std::cout << "Thread is spawned!\n";
-	while(!close_thread) cap.read(image.access_data());
-	std::cout << "Thread is closed!\n";
-}
-
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "vision_test");
+	ros::init(argc, argv, "vision_test_no_thread");
 	ros::NodeHandle nh;
 
 	cv::VideoCapture cap(0);
-	ThreadSafe<cv::Mat> image;
-
 	vision::ObjectDetector detector;
+
+	cv::Mat src;
+	cv::Vec3f shape;
 
 	ros::Publisher  cv_target_publisher = nh.advertise<krti18::Shape>("cv_target", 1);
 	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
 	ros::Subscriber rc_in_subscriber 	= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
-	// First read to prevent empty cv::Mat (thread takes time to init)
-	cap.read(image.access_data());
-	std::thread video_reader(cap_read, std::ref(cap), std::ref(image));
+	cv::namedWindow("Detection", cv::WINDOW_NORMAL);
 
-	ros::Rate rate(20);		// 20 Hz
-	ROS_INFO("Starting vision_test!");
+	ros::Rate rate(20);
+	ROS_INFO("Starting vision_test_no_thread!");
 
-	while (ros::ok()) {
+	while(ros::ok()){
 		ros::spinOnce();
 
-		cv::Vec3f shape;
+		bool success = cap.read(src);
+		if(!success) break;
+
 		krti18::Shape target;
 
-		cv::Mat src = image.get_data();
-
-		/*
-		-1 ==> BREAK THE LOOP (EFFECT OF fm_changer.cpp ONLY)
-		 1 ==> DROP LOG (LINGKARAN KUNING)
-		 2 ==> PICK MP  (KOTAK HIJAU, LINGKARAN HIJAU)
-		 3 ==> MP       (MOMOGI OREN)
-		 4 ==> DROP MP  (KOTAK HIJAU, KOTAK OREN)
-		 else ==> DETECT NOTHING
-		*/
 		if (cv_flag == -1 || RC_IN_CH7 < RC_CH7_ON) {
 			break;
 		} else if (cv_flag == 1) {
@@ -103,15 +83,13 @@ int main(int argc, char **argv) {
 			target.r_obj = 0;
 		}
 
+		detector.markColor(src, shape);
+		cv::imshow("Detection", src);
+
 		cv_target_publisher.publish(target);
 		rate.sleep();
-		
-	} // end of while(ros::ok())
-	
-	close_thread = true;
-	video_reader.join();
-	ROS_INFO("vision_test is shutting down!");
-	
+	}
+
 	return 0;
 }
 

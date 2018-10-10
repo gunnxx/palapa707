@@ -44,7 +44,9 @@ set(CLASS_DEF
 	src/Copter.cpp)
 
 ## Add executable files
-# Main nodes
+# ==========
+# Main Nodes
+# ==========
 add_executable(fm_changer
 	src/fm_changer.cpp)
 add_dependencies(fm_changer
@@ -77,7 +79,9 @@ target_link_libraries(vision
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
 
-# Test nodes
+# ==========
+# Test Nodes
+# ==========
 add_executable(vision_test
 	src/test/vision_test.cpp
 	${CLASS_DEF})
@@ -126,3 +130,19 @@ add_dependencies(fm_changer_test
 	krti18_generate_messages_cpp)
 target_link_libraries(fm_changer_test
 	${catkin_LIBRARIES})
+
+add_executable(waypoint_reached
+	src/test/waypoint_reached.cpp)
+add_dependencies(waypoint_reached
+	krti18_generate_messages_cpp)
+target_link_libraries(waypoint_reached
+	${catkin_LIBRARIES})
+
+add_executable(vision_test_no_thread
+	src/test/vision_test_no_thread.cpp
+	${CLASS_DEF})
+add_dependencies(vision_test_no_thread
+	krti18_generate_messages_cpp)
+target_link_libraries(vision_test_no_thread
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
