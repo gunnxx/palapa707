@@ -29,6 +29,8 @@ int main (int argc, char **argv) {
 	// Initial conditions need to be fulfilled (ch7 should ON)
 	while( !(ros::ok() &&
 			 RC_IN_CH7 < RC_CH7_ON)) ros::spinOnce();
+	
+	palapa707.drop();
 	ROS_INFO("servo_test drops the MP");
 	
 	return 0;
