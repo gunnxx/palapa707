@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   // Initialize ROS.
   ros::init(argc, argv, "rosserial_server_serial_node");
   std::string port;
-  ros::param::param<std::string>("~port", port, "/dev/ttyACM1");
+  ros::param::param<std::string>("~port", port, "/dev/ttyUSB0");
   int baud;
   ros::param::param<int>("~baud", baud, 57600);
 
