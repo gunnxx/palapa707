@@ -2,6 +2,14 @@
 
 using namespace UAV;
 
+/* =================
+	HELPER FUNCTION
+   ================= */
+float abs_min(float a, float b){
+	if(std::abs(a) < std::abs(b)) return a;
+	return b;
+}
+
 /* ===============================
 	CONSTRUCTOR AND DECONSTRUCTOR
    =============================== */
@@ -56,10 +64,10 @@ void Copter::go_center(){
 	_mission_timer.start();
 
 	// Keep track of old-error to measure Derivative
-	float old_x_err = std::min(_X_CAM - _safe_zone*_r_det - _x_det,
-							   _X_CAM + _safe_zone*_r_det - _x_det);
-	float old_y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
-							   _Y_CAM + _safe_zone*_r_det - _y_det);
+	float old_x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
+							  _X_CAM + _safe_zone*_r_det - _x_det);
+	float old_y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							  _Y_CAM + _safe_zone*_r_det - _y_det);
 
 	// Adjust camera orientation
 	old_x_err *= -1;
@@ -74,10 +82,10 @@ void Copter::go_center(){
 		ros::spinOnce();
 		
 		// Proportional error
-		float x_err = std::min(_X_CAM - _safe_zone*_r_det - _x_det,
-							   _X_CAM + _safe_zone*_r_det - _x_det);
-		float y_err = std::min(_Y_CAM - _safe_zone*_r_det - _y_det,
-							   _Y_CAM + _safe_zone*_r_det - _y_det);
+		float x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
+							  _X_CAM + _safe_zone*_r_det - _x_det);
+		float y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							  _Y_CAM + _safe_zone*_r_det - _y_det);
 
 		// Adjust camera orientation
 		x_err *= -1;
@@ -140,8 +148,8 @@ void Copter::change_height(int desired_alt){
 
 	// Keep track of old-error to measure Derivative
 	// 5 is tolerable error in cm (offset)
-	float old_z_err = std::min(desired_alt - 5 - _copter_alt,
-							   desired_alt + 5 - _copter_alt);
+	float old_z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
 
 	// Set Integral starting value
 	float iz_err = 0.;
@@ -152,8 +160,8 @@ void Copter::change_height(int desired_alt){
 		ros::spinOnce();
 		
 		// Proportional error
-		float z_err = std::min(desired_alt - 5 - _copter_alt,
-							   desired_alt + 5 - _copter_alt);
+		float z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
 
 		// Derivative error
 		float dz_err = z_err - old_z_err;
