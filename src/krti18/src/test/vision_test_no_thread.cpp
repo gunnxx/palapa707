@@ -29,6 +29,10 @@ int main(int argc, char **argv) {
 	ros::NodeHandle nh;
 
 	cv::VideoCapture cap(0);
+	cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+	cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+	cap.set(cv::CAP_PROP_FPS, 30);
+	
 	vision::ObjectDetector detector;
 
 	cv::Mat src;
