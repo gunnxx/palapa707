@@ -22,6 +22,7 @@ class Copter {
     void drop();
     void get();
     void change_height(int desired_alt);
+    void change_height_and_centerize(int desired_alt);
 
   	/* ==========
   		  Callback
@@ -58,8 +59,8 @@ class Copter {
     		Camera center location (pixel)
     		as /Setpoint for PID
   	   ================================ */
-  	const int _X_CAM = 320;
-  	const int _Y_CAM = 240;
+  	const int _X_CAM = 240;
+  	const int _Y_CAM = 320;
 
   	/* ==========
   		  PID Gain

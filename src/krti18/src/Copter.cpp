@@ -13,7 +13,6 @@ float abs_min(float a, float b){
 /* ===============================
 	CONSTRUCTOR AND DECONSTRUCTOR
    =============================== */
-
 Copter::Copter(){
 	//ROS_INFO("COPTER IS CREATED!");
 	_cmd_vel_publisher        = _nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 10);
@@ -179,6 +178,83 @@ void Copter::change_height(int desired_alt){
 		geometry_msgs::TwistStamped vel;
 		vel.header.stamp = ros::Time::now();
 		vel.header.frame_id = "1";
+		vel.twist.linear.z = u_z;
+		_cmd_vel_publisher.publish(vel);
+		
+		temp_rate.sleep();
+	}
+	
+	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	
+	// Reset timer
+	_mission_timer.stop();
+	_mission_timeout = false;
+}
+
+void Copter::change_height_and_centerize(int desired_alt){
+		ros::Rate temp_rate(30);
+	
+	_mission_timer.setPeriod(ros::Duration(_mission_time));
+	_mission_timer.start();
+
+	// Keep track of old-error to measure Derivative
+	float old_x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
+							  _X_CAM + _safe_zone*_r_det - _x_det);
+	float old_y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							  _Y_CAM + _safe_zone*_r_det - _y_det);
+	float old_z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
+	
+	// Adjust camera orientation
+	old_x_err *= -1;
+
+	// Set Integral starting value
+	float ix_err = 0.;
+	float iy_err = 0.;
+	float iz_err = 0.;
+
+	while (ros::ok() &&
+		   !_mission_timeout && // Mission takes long time
+		   !_switch_status) {   // Limit switch trigerred
+		ros::spinOnce();
+		
+		// Proportional error
+		float x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
+							  _X_CAM + _safe_zone*_r_det - _x_det);
+		float y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
+							  _Y_CAM + _safe_zone*_r_det - _y_det);
+		float z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
+
+		// Adjust camera orientation
+		x_err *= -1;
+
+		// Derivative error
+		float dx_err = x_err - old_x_err;
+		float dy_err = y_err - old_y_err;
+		float dz_err = z_err - old_z_err;
+
+		// Integral error
+		ix_err = std::min(ix_err + x_err, _max_ix);
+		iy_err = std::min(iy_err + y_err, _max_iy);
+		iz_err = std::min(iz_err + z_err, _max_iz);
+
+		// Output value
+		float u_x = x_err*_Kpx + dx_err*_Kdx + ix_err*_Kix;
+		float u_y = y_err*_Kpy + dy_err*_Kdy + iy_err*_Kiy;
+		float u_z = z_err*_Kpz + dz_err*_Kdz + iz_err*_Kiz;
+
+		// Update old value
+		old_x_err = x_err;
+		old_y_err = y_err;
+		old_z_err = z_err;
+
+		// Publish output value (velocity that moves the copter)
+		geometry_msgs::TwistStamped vel;
+		vel.header.stamp = ros::Time::now();
+		vel.header.frame_id = "1";
+		vel.twist.linear.x = u_x;
+		vel.twist.linear.y = u_y;
 		vel.twist.linear.z = u_z;
 		_cmd_vel_publisher.publish(vel);
 		
