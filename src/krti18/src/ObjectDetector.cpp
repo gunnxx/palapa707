@@ -228,9 +228,10 @@ void ObjectDetector::findColor(const cv::Mat& image,
     double M10 = oMoments.m10;
     double Area = oMoments.m00;
 
-    if(Area > 1000){
+    if(Area > 10){
       color[0] = M10/Area;
       color[1] = M01/Area;
+      color[2] = 20;  // Artificial radius for offset
     }
 }
 
