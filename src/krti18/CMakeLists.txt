@@ -132,11 +132,13 @@ target_link_libraries(fm_changer_test
 	${catkin_LIBRARIES})
 
 add_executable(waypoint_reached
-	src/test/waypoint_reached.cpp)
+	src/test/waypoint_reached.cpp
+	${CLASS_DEF})
 add_dependencies(waypoint_reached
 	krti18_generate_messages_cpp)
 target_link_libraries(waypoint_reached
-	${catkin_LIBRARIES})
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
 
 add_executable(vision_test_no_thread
 	src/test/vision_test_no_thread.cpp
