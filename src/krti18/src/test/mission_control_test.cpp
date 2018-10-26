@@ -1,7 +1,6 @@
 #include "ros/ros.h"
 #include "Copter.h"
 #include "mavros_msgs/RCIn.h"
-#include "mavros_msgs/SetMode.h"
 #include "krti18/Mission.h"
 
 // Mission type as to what movement to execute
@@ -30,18 +29,14 @@ int main (int argc, char **argv) {
 	ros::Subscriber mission_type_subscriber = nh.subscribe("mission_type", 1, mission_type_callback);
 	ros::Subscriber rc_in_subscriber		= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
-	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
-
 	krti18::State state;
-	mavros_msgs::SetMode flight_mode;
-	flight_mode.request.base_mode = 0;
+	ros::Rate rate(20);		// 20 Hz
 
 	ROS_INFO("mission_control_test is waiting for Ch-7");
-	// Initial conditions need to be fulfilled (ch7 should ON)
-	while( !(ros::ok() &&
-			 RC_IN_CH7 > RC_CH7_OFF)) ros::spinOnce();
-
-	ros::Rate rate(20);		// 20 Hz
+	while( !(ros::ok() && RC_IN_CH7 > RC_CH7_OFF)){
+		ros::spinOnce();
+		rate.sleep();
+	}
 	ROS_INFO("Starting mission_control_test!");
 
 	while(ros::ok()){
@@ -58,15 +53,9 @@ int main (int argc, char **argv) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
 
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.go_center();
-
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			palapa707.change_flight_mode(std::string("LOITER"));
 
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
@@ -78,15 +67,9 @@ int main (int argc, char **argv) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
 
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-			
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.change_height(height_desired);
-
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			palapa707.change_flight_mode(std::string("LOITER"));
 
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
@@ -98,18 +81,12 @@ int main (int argc, char **argv) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
 
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-			
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.change_height(height_desired);
 			palapa707.get();
 			palapa707.change_height(height_up);
 			palapa707.drop();
-
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			palapa707.change_flight_mode(std::string("LOITER"));
 
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
@@ -121,41 +98,42 @@ int main (int argc, char **argv) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
 
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-			
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.go_center();
-			
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
-			
+			palapa707.change_flight_mode(std::string("LOITER"));
 			usleep(2000000);
-			
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-			
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.change_height_and_centerize(180);
-			
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
-			
+			palapa707.change_flight_mode(std::string("LOITER"));
 			usleep(2000000);
-			
-			flight_mode.request.custom_mode = "GUIDED";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
-			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-			
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.get();
 			palapa707.change_height(400);
 			palapa707.drop();
+			palapa707.change_flight_mode(std::string("LOITER"));
 
-			flight_mode.request.custom_mode = "LOITER";
-			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
-			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			state.doing_mission = false;
+			copter_state_publisher.publish(state);
+
+			mission_type = 0;
+		}
+
+		else if(mission_type == 5) {
+			state.doing_mission = true;
+			copter_state_publisher.publish(state);
+
+			palapa707.change_flight_mode(std::string("GUIDED"));
+			palapa707.go_center();
+			palapa707.change_flight_mode(std::string("LOITER"));
+			usleep(2000000);
+			palapa707.change_height_with_land(180);
+			palapa707.change_flight_mode(std::string("LOITER"));
+			usleep(2000000);
+			palapa707.change_flight_mode(std::string("GUIDED"));
+			palapa707.get();
+			palapa707.change_height(400);
+			palapa707.drop();
+			palapa707.change_flight_mode(std::string("LOITER"));
 
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);

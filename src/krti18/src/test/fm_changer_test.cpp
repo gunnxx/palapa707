@@ -38,29 +38,33 @@ int main (int argc, char **argv) {
 
 	ros::Subscriber rc_in_subscriber = nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
+	ros::Rate rate(30);		// 30 Hz
+
 	// Initial conditions needs to be fulfilled (ch7 should ON)
 	ROS_INFO("fm_changer_test is waiting for Ch-7");
-	while( !(ros::ok() &&
-			 RC_IN_CH7 > RC_CH7_OFF) ) ros::spinOnce();
+	while( !(ros::ok() && RC_IN_CH7 > RC_CH7_OFF) ){
+		ros::spinOnce();
+		rate.sleep();
+	}
 
 	/*
 	CHANNEL 7 IS TRIGERRED -> CHANGE TO AUTO TO FOLLOW WAYPOINT
 	*/
+	/*
 	mavros_msgs::SetMode flight_mode;
 	flight_mode.request.base_mode = 0;
-	flight_mode.request.custom_mode = "GUIDED";
+	flight_mode.request.custom_mode = "AUTO";
 
 	if (set_mode_client.call(flight_mode))
-		ROS_INFO("Flight mode changed to GUIDED");
+		ROS_INFO("Flight mode changed to AUTO");
 	else
-		ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
-
-	ros::Rate rate(30);		// 30 Hz
+		ROS_INFO("WARNING : Failed to change flight mode to AUTO");
+	*/
 
 	while(ros::ok()){
 		ros::spinOnce();
 		/*
-		CHANNEL 7 IS UN-TRIGGERED AND IN GUIDED/AUTO MODE -> CHANGE TO STABILIZE
+		CHANNEL 7 IS UN-TRIGGERED AND IN GUIDED/AUTO MODE -> CHANGE TO LOITER
 		*/
 		if (RC_IN_CH7 < RC_CH7_ON) {
 			flight_mode.request.custom_mode = "LOITER";

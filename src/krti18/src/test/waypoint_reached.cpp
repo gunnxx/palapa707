@@ -5,7 +5,6 @@
 
 int waypoint_reached;
 bool mission_1_reached = false;	// Indicating already done
-bool mission_2_reached = false;	// the mission for the particular waypoint
 void mission_reached_callback(const mavros_msgs::WaypointReached& data);
 
 int main(int argc, char **argv){
@@ -30,13 +29,6 @@ int main(int argc, char **argv){
 			
 			mission_1_reached = true;
 		}
-		
-		/*
-		else if(waypoint_reached == 5 && !mission_2_reached){
-			palapa707.drop();
-			mission_2_reached = true;
-		}
-		*/
 
 		if(mission_1_reached) break;
 
