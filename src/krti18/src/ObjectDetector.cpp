@@ -219,8 +219,8 @@ void ObjectDetector::findColor(const cv::Mat& image,
     cv::erode(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
     cv::dilate(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
 
-    cv::erode(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
     cv::dilate(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+    cv::erode(hsv, hsv, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
 
     cv::Moments oMoments = cv::moments(hsv);
 
@@ -229,9 +229,9 @@ void ObjectDetector::findColor(const cv::Mat& image,
     double Area = oMoments.m00;
 
     if(Area > 10){
-      color[0] = M10/Area;
-      color[1] = M01/Area;
-      color[2] = 20;  // Artificial radius for offset
+      color[1] = M10/Area;
+      color[0] = M01/Area;
+      color[2] = 40;  //Artificial radius for offset
     }
 }
 
