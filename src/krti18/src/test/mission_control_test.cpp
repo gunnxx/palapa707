@@ -116,6 +116,52 @@ int main (int argc, char **argv) {
 
 			mission_type = 0;
 		}
+		
+		else if (mission_type == 4) {
+			state.doing_mission = true;
+			copter_state_publisher.publish(state);
+
+			flight_mode.request.custom_mode = "GUIDED";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
+			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
+			
+			palapa707.go_center();
+			
+			flight_mode.request.custom_mode = "LOITER";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
+			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			
+			usleep(2000000);
+			
+			flight_mode.request.custom_mode = "GUIDED";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
+			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
+			
+			palapa707.change_height_and_centerize(180);
+			
+			flight_mode.request.custom_mode = "LOITER";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
+			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+			
+			usleep(2000000);
+			
+			flight_mode.request.custom_mode = "GUIDED";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to GUIDED");
+			else ROS_INFO("WARNING : Failed to change flight mode to GUIDED");
+			
+			palapa707.get();
+			palapa707.change_height(400);
+			palapa707.drop();
+
+			flight_mode.request.custom_mode = "LOITER";
+			if (set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LOITER");
+			else ROS_INFO("WARNING : Failed to change flight mode to LOITER");
+
+			state.doing_mission = false;
+			copter_state_publisher.publish(state);
+
+			mission_type = 0;
+		}
 
 		rate.sleep();
 
