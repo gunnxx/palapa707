@@ -50,9 +50,9 @@ int main (int argc, char **argv) {
 	/*
 	CHANNEL 7 IS TRIGERRED -> CHANGE TO AUTO TO FOLLOW WAYPOINT
 	*/
-	/*
 	mavros_msgs::SetMode flight_mode;
 	flight_mode.request.base_mode = 0;
+	/*
 	flight_mode.request.custom_mode = "AUTO";
 
 	if (set_mode_client.call(flight_mode))
