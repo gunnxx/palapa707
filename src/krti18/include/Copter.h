@@ -26,6 +26,7 @@ class Copter {
     void get();
     void change_height(int desired_alt);
     void change_height_and_centerize(int desired_alt);
+    void change_height_with_land(int desired_alt);
     void change_flight_mode(std::string mode);
 
   	/* ==========
@@ -33,7 +34,6 @@ class Copter {
   	   ========== */
   	void cv_target_callback(const krti18::Shape& obj_loc);
   	void lidar_alt_callback(const std_msgs::Int16& data);
-    void switch_status_callback(const std_msgs::Bool& status);
   	void timer_callback(const ros::TimerEvent& event);
 
   private:
@@ -45,7 +45,6 @@ class Copter {
   	
     ros::Subscriber _cv_target_subscriber;
   	ros::Subscriber _lidar_alt_subscriber;
-    ros::Subscriber _switch_status_subscriber;
   	
   	ros::ServiceClient _set_mode_client;
   	
@@ -71,12 +70,12 @@ class Copter {
   	/* ==========
   		  PID Gain
   	   ========== */
-  	const float _Kpx    = 0.002;
+  	/*const*/ float _Kpx    = 0.002;
   	const float _Kdx    = 0.000;
   	const float _Kix    = 0.000;
   	const float _max_ix = 0.050;
   	
-  	const float _Kpy    = 0.002;
+  	/*const*/ float _Kpy    = 0.002;
   	const float _Kdy    = 0.000;
   	const float _Kiy    = 0.000;
   	const float _max_iy = 0.050;
@@ -95,7 +94,6 @@ class Copter {
   	/* ==============
   		  Arduino Data
   	   ============== */
-  	bool _switch_status     = false;
     int  _copter_alt        = 0.;
     int  _drop_servo_degree = 10;
     int  _get_servo_degree  = 100;

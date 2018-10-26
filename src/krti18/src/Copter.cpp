@@ -21,7 +21,6 @@ Copter::Copter(){
 	
 	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
 	_lidar_alt_subscriber	  = _nh.subscribe("lidar_alt", 10, &Copter::lidar_alt_callback, this);
-	_switch_status_subscriber = _nh.subscribe("switch_status", 10, &Copter::switch_status_callback, this);
 
 	_set_mode_client		  = _nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
 
@@ -46,10 +45,6 @@ void Copter::lidar_alt_callback(const std_msgs::Int16& data){
 	_copter_alt = data.data;
 }
 
-void Copter::switch_status_callback(const std_msgs::Bool& status){
-	_switch_status = status.data;
-}
-
 void Copter::timer_callback(const ros::TimerEvent& event){
 	_mission_timeout = true;
 }
@@ -72,20 +67,12 @@ void Copter::go_center(){
 	float old_y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 	
-	/*
-	float old_x_err = _X_CAM - _x_det;
-	float old_y_err = _Y_CAM - _y_det;
-	if(old_x_err < _safe_zone*_r_det) old_x_err = 0;
-	if(old_y_err < _safe_zone*_r_det) old_y_err = 0;
-	*/
-	
 	// Set Integral starting value
 	float ix_err = 0.;
 	float iy_err = 0.;
 
 	while (ros::ok() &&
-		   !_mission_timeout && // Mission takes long time
-		   !_switch_status) {   // Limit switch trigerred
+		   !_mission_timeout) { // Mission takes long time
 		ros::spinOnce();
 		
 		// Proportional error
@@ -94,12 +81,6 @@ void Copter::go_center(){
 		float y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 		
-		/*
-		float x_err = _X_CAM - _x_det;
-		float y_err = _Y_CAM - _y_det;
-		if(x_err < _safe_zone*_r_det) x_err = 0;
-		if(y_err < _safe_zone*_r_det) y_err = 0;
-		*/
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;
@@ -166,8 +147,7 @@ void Copter::change_height(int desired_alt){
 	float iz_err = 0.;
 
 	while (ros::ok() &&
-		   !_mission_timeout && // Mission takes long time
-		   !_switch_status) {   // Limit switch trigerred
+		   !_mission_timeout) { // Mission takes long time
 		ros::spinOnce();
 		
 		// Proportional error
@@ -221,14 +201,6 @@ void Copter::change_height_and_centerize(int desired_alt){
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 	float old_z_err = abs_min(desired_alt - 5. - _copter_alt,
 							  desired_alt + 5. - _copter_alt);
-	/*
-	float old_x_err = _X_CAM - _x_det;
-	float old_y_err = _Y_CAM - _y_det;
-	float old_z_err = desired_alt - _copter_alt;
-	if(old_x_err < _safe_zone*_r_det) old_x_err = 0;
-	if(old_y_err < _safe_zone*_r_det) old_y_err = 0;
-	if(old_z_err < 5) old_z_err = 0;
-	*/
 
 	// Set Integral starting value
 	float ix_err = 0.;
@@ -236,8 +208,7 @@ void Copter::change_height_and_centerize(int desired_alt){
 	float iz_err = 0.;
 
 	while (ros::ok() &&
-		   !_mission_timeout && // Mission takes long time
-		   !_switch_status) {   // Limit switch trigerred
+		   !_mission_timeout) { // Mission takes long time
 		ros::spinOnce();
 		
 		// Proportional error
@@ -247,14 +218,6 @@ void Copter::change_height_and_centerize(int desired_alt){
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 		float z_err = abs_min(desired_alt - 5. - _copter_alt,
 							  desired_alt + 5. - _copter_alt);
-		/*
-		float x_err = _X_CAM - _x_det;
-		float y_err = _Y_CAM - _y_det;
-		float z_err = desired_alt - _copter_alt;
-		if(x_err < _safe_zone*_r_det) x_err = 0;
-		if(y_err < _safe_zone*_r_det) y_err = 0;
-		if(z_err < 5) z_err = 0;
-		*/
 
 		// Desired height achieved
 		if(desired_alt == _copter_alt) break;
@@ -268,6 +231,15 @@ void Copter::change_height_and_centerize(int desired_alt){
 		ix_err = std::min(ix_err + x_err, _max_ix);
 		iy_err = std::min(iy_err + y_err, _max_iy);
 		iz_err = std::min(iz_err + z_err, _max_iz);
+
+		// Adjust proportional gain relative to altitude
+		if(_copter_alt < 200){
+			_Kpx = 0.0005;
+			_Kpy = 0.0005;
+		} else if(_copter_alt < 300) {
+			_Kpx = 0.001;
+			_Kpy = 0.001;
+		}
 
 		// Output value
 		float u_x = x_err*_Kpx + dx_err*_Kdx + ix_err*_Kix;
@@ -294,6 +266,36 @@ void Copter::change_height_and_centerize(int desired_alt){
 	if(_mission_timeout) ROS_INFO("Mission Timeout!");
 	else ROS_INFO("Desired Height Achieved!");
 	
+	// Reset timer
+	_mission_timer.stop();
+	_mission_timeout = false;
+}
+
+void Copter::change_height_with_land(int desired_alt){
+	ros::Rate temp_rate(30);
+
+	_mission_timer.setPeriod(ros::Duration(_mission_time));
+	_mission_timer.start();
+
+	ROS_INFO("Copter Go Down!");
+
+	mavros_msgs::SetMode flight_mode;
+	flight_mode.request.base_mode = 0;
+	flight_mode.request.custom_mode = "LAND";
+	
+	if(_set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to LAND");
+	else ROS_INFO("WARNING : Failed to change flight mode to LAND");
+
+	while (ros::ok() &&
+		   _copter_alt > desired_alt &&
+		   !_mission_timeout) { // Mission takes long time
+		ros::spinOnce();
+		temp_rate.sleep();
+	}
+
+	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	else ROS_INFO("Desired Height Achieved!");
+
 	// Reset timer
 	_mission_timer.stop();
 	_mission_timeout = false;
