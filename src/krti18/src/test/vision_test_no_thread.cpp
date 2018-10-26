@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ObjectDetector.h"
 
 #include "ros/ros.h"
@@ -6,11 +7,11 @@
 #include "mavros_msgs/RCIn.h"
 
 // "Orange" color HSV parameter
-int lH = 80;
-int hH = 140;
-int lS = 30;
-int hS = 255;
-int lV = 235;
+int lH = 90;
+int hH = 120;
+int lS = 90;
+int hS = 180;
+int lV = 200;
 int hV = 255;
 
 // Flag of what things should be detected
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 	ros::Subscriber cv_flag_subscriber  = nh.subscribe("cv_flag", 1, cv_flag_callback);
 	ros::Subscriber rc_in_subscriber 	= nh.subscribe("/mavros/rc/in", 1, rc_in_callback);
 
-	cv::namedWindow("Detection", cv::WINDOW_NORMAL);
+	//cv::namedWindow("Detection", cv::WINDOW_NORMAL);
 
 	ros::Rate rate(20);
 	ROS_INFO("Starting vision_test_no_thread!");
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
 
 		krti18::Shape target;
 
-		if (cv_flag == -1 || RC_IN_CH7 < RC_CH7_ON) {
+		if (cv_flag == -1 /*|| RC_IN_CH7 < RC_CH7_ON*/) {
 			break;
 		} else if (cv_flag == 1) {
 			detector.findCircle(src, shape);
@@ -88,8 +89,10 @@ int main(int argc, char **argv) {
 		}
 
 		detector.markColor(src, shape);
-		cv::imshow("Detection", src);
-
+		//cv::imshow("Detection", src);
+		//cv::waitKey(10);
+		//std::cout << "v_x : " << shape[0]-240 << "   v_y : " << shape[1]-320 << std::endl;
+		
 		cv_target_publisher.publish(target);
 		rate.sleep();
 	}

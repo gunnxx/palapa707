@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "Copter.h"
+#include "krti18/Mission.h"
 #include "mavros_msgs/WaypointReached.h"
 
 int waypoint_reached;
@@ -12,7 +13,8 @@ int main(int argc, char **argv){
 	ros::NodeHandle nh;
 
 	UAV::Copter palapa707;
-
+	
+	ros::Publisher  mission_type_publisher     = nh.advertise<krti18::Mission>("mission_type", 1);
 	ros::Subscriber mission_reached_subscriber = nh.subscribe("/mavros/mission/reached", 1, mission_reached_callback);
 
 	ros::Rate rate(30);
@@ -21,17 +23,22 @@ int main(int argc, char **argv){
 	while(ros::ok()){
 		ros::spinOnce();
 
-		if(waypoint_reached == 2 && !mission_1_reached){
-			palapa707.get();
+		if(waypoint_reached == 3 && !mission_1_reached){
+			krti18::Mission data;
+			data.mission_type = 4;
+			mission_type_publisher.publish(data);
+			
 			mission_1_reached = true;
 		}
-
-		else if(waypoint_reached == 4 && !mission_2_reached){
+		
+		/*
+		else if(waypoint_reached == 5 && !mission_2_reached){
 			palapa707.drop();
 			mission_2_reached = true;
 		}
+		*/
 
-		if(mission_1_reached && mission_2_reached) break;
+		if(mission_1_reached) break;
 
 		rate.sleep();
 	}
