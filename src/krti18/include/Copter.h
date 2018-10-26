@@ -1,10 +1,13 @@
 #ifndef COPTER
 #define COPTER
 
+#include <string>
+
 #include "ros/ros.h"
 #include "std_msgs/Bool.h"
 #include "std_msgs/Int16.h"
 #include "geometry_msgs/TwistStamped.h"
+#include "mavros_msgs/SetMode.h"
 #include "krti18/Shape.h"
 #include "krti18/State.h"
 
@@ -23,6 +26,7 @@ class Copter {
     void get();
     void change_height(int desired_alt);
     void change_height_and_centerize(int desired_alt);
+    void change_flight_mode(std::string mode);
 
   	/* ==========
   		  Callback
@@ -42,6 +46,8 @@ class Copter {
     ros::Subscriber _cv_target_subscriber;
   	ros::Subscriber _lidar_alt_subscriber;
     ros::Subscriber _switch_status_subscriber;
+  	
+  	ros::ServiceClient _set_mode_client;
   	
     ros::Timer 		  _mission_timer;
 
@@ -83,7 +89,7 @@ class Copter {
   	/* ===============
   		  Mission Timer
   	   =============== */
-  	const float _mission_time = 20.; // seconds
+  	const float _mission_time = 15.; // seconds
   	bool _mission_timeout = false;
 
   	/* ==============
@@ -91,8 +97,8 @@ class Copter {
   	   ============== */
   	bool _switch_status     = false;
     int  _copter_alt        = 0.;
-    int  _drop_servo_degree = 0;
-    int  _get_servo_degree  = 90;
+    int  _drop_servo_degree = 10;
+    int  _get_servo_degree  = 100;
 };
 
 } // namespace UAV

@@ -22,7 +22,9 @@ Copter::Copter(){
 	_cv_target_subscriber     = _nh.subscribe("cv_target", 10, &Copter::cv_target_callback, this);
 	_lidar_alt_subscriber	  = _nh.subscribe("lidar_alt", 10, &Copter::lidar_alt_callback, this);
 	_switch_status_subscriber = _nh.subscribe("switch_status", 10, &Copter::switch_status_callback, this);
-	
+
+	_set_mode_client		  = _nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
+
 	_mission_timer 			  = _nh.createTimer(ros::Duration(_mission_time), &Copter::timer_callback, this);
 	_mission_timer.stop();
 }
@@ -61,16 +63,22 @@ void Copter::go_center(){
 	
 	_mission_timer.setPeriod(ros::Duration(_mission_time));
 	_mission_timer.start();
+	
+	ROS_INFO("Copter Go Center!");
 
 	// Keep track of old-error to measure Derivative
 	float old_x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
 							  _X_CAM + _safe_zone*_r_det - _x_det);
 	float old_y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
-
-	// Adjust camera orientation
-	old_x_err *= -1;
-
+	
+	/*
+	float old_x_err = _X_CAM - _x_det;
+	float old_y_err = _Y_CAM - _y_det;
+	if(old_x_err < _safe_zone*_r_det) old_x_err = 0;
+	if(old_y_err < _safe_zone*_r_det) old_y_err = 0;
+	*/
+	
 	// Set Integral starting value
 	float ix_err = 0.;
 	float iy_err = 0.;
@@ -85,9 +93,13 @@ void Copter::go_center(){
 							  _X_CAM + _safe_zone*_r_det - _x_det);
 		float y_err = abs_min(_Y_CAM - _safe_zone*_r_det - _y_det,
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
-
-		// Adjust camera orientation
-		x_err *= -1;
+		
+		/*
+		float x_err = _X_CAM - _x_det;
+		float y_err = _Y_CAM - _y_det;
+		if(x_err < _safe_zone*_r_det) x_err = 0;
+		if(y_err < _safe_zone*_r_det) y_err = 0;
+		*/
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;
@@ -161,6 +173,9 @@ void Copter::change_height(int desired_alt){
 		// Proportional error
 		float z_err = abs_min(desired_alt - 5. - _copter_alt,
 							  desired_alt + 5. - _copter_alt);
+		
+		// Desired height achieved
+		if(_copter_alt < desired_alt) break;
 
 		// Derivative error
 		float dz_err = z_err - old_z_err;
@@ -192,11 +207,13 @@ void Copter::change_height(int desired_alt){
 }
 
 void Copter::change_height_and_centerize(int desired_alt){
-		ros::Rate temp_rate(30);
+	ros::Rate temp_rate(30);
 	
 	_mission_timer.setPeriod(ros::Duration(_mission_time));
 	_mission_timer.start();
-
+	
+	ROS_INFO("Copter Go Down!");
+	
 	// Keep track of old-error to measure Derivative
 	float old_x_err = abs_min(_X_CAM - _safe_zone*_r_det - _x_det,
 							  _X_CAM + _safe_zone*_r_det - _x_det);
@@ -204,9 +221,14 @@ void Copter::change_height_and_centerize(int desired_alt){
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 	float old_z_err = abs_min(desired_alt - 5. - _copter_alt,
 							  desired_alt + 5. - _copter_alt);
-	
-	// Adjust camera orientation
-	old_x_err *= -1;
+	/*
+	float old_x_err = _X_CAM - _x_det;
+	float old_y_err = _Y_CAM - _y_det;
+	float old_z_err = desired_alt - _copter_alt;
+	if(old_x_err < _safe_zone*_r_det) old_x_err = 0;
+	if(old_y_err < _safe_zone*_r_det) old_y_err = 0;
+	if(old_z_err < 5) old_z_err = 0;
+	*/
 
 	// Set Integral starting value
 	float ix_err = 0.;
@@ -225,9 +247,17 @@ void Copter::change_height_and_centerize(int desired_alt){
 							  _Y_CAM + _safe_zone*_r_det - _y_det);
 		float z_err = abs_min(desired_alt - 5. - _copter_alt,
 							  desired_alt + 5. - _copter_alt);
+		/*
+		float x_err = _X_CAM - _x_det;
+		float y_err = _Y_CAM - _y_det;
+		float z_err = desired_alt - _copter_alt;
+		if(x_err < _safe_zone*_r_det) x_err = 0;
+		if(y_err < _safe_zone*_r_det) y_err = 0;
+		if(z_err < 5) z_err = 0;
+		*/
 
-		// Adjust camera orientation
-		x_err *= -1;
+		// Desired height achieved
+		if(desired_alt == _copter_alt) break;
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;
@@ -262,8 +292,18 @@ void Copter::change_height_and_centerize(int desired_alt){
 	}
 	
 	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	else ROS_INFO("Desired Height Achieved!");
 	
 	// Reset timer
 	_mission_timer.stop();
 	_mission_timeout = false;
+}
+
+void Copter::change_flight_mode(std::string mode){
+	mavros_msgs::SetMode flight_mode;
+	flight_mode.request.base_mode = 0;
+	flight_mode.request.custom_mode = mode;
+	
+	if(_set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to %s", mode);
+	else ROS_INFO("WARNING : Failed to change flight mode to %s", mode);
 }
