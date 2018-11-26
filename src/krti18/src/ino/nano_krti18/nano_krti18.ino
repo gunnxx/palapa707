@@ -1,10 +1,10 @@
 /*  Configuration
     //LIDAR WIRING
-    KABEL KUNING  >>  PIN
-    KABEL ORANYE  >>  PIN
+    KABEL KUNING  >>  PIN 2
+    KABEL ORANYE  >>  PIN 3
     KABEL MERAH   >>  +5V
     KABEL HITAM   >>  GND
- */
+*/
 #include <Servo.h>
 #include <ros.h>
 #include <std_msgs/Bool.h>

@@ -1,10 +1,6 @@
 <launch>
-	<!-- INTERNAL PACKAGE -->
 	<node name="fm_changer_test" 	   pkg="krti18" type="fm_changer_test" 	     output="screen"/>
 	<node name="mission_control_test"  pkg="krti18" type="mission_control_test"  output="screen"/>
 	<node name="vision_test_no_thread" pkg="krti18" type="vision_test_no_thread" output="screen"/>
-	<node name="waypoint_reached" 	   pkg="krti18" type="waypoint_reached" 	 output="screen"/>
-	
-	<!-- EXTERNAL PACKAGE DEPENDENCIES -->
-	<!-- node name="rosserial" pkg="rosserial_server" type="serial_node" /--> 
+	<node name="waypoint_reached_3"	   pkg="krti18" type="waypoint_reached_3" 	 output="screen"/>
 </launch>

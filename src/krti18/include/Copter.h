@@ -24,9 +24,10 @@ class Copter {
   	void go_center();
     void drop();
     void get();
-    void change_height(int desired_alt);
-    void change_height_and_centerize(int desired_alt);
-    void change_height_with_land(int desired_alt);
+    void go_up(int desired_alt);
+    void go_down(int desired_alt);
+    void go_down_and_centerize(int desired_alt);
+    void go_down_with_land(int desired_alt);
     void change_flight_mode(std::string mode);
 
   	/* ==========
@@ -80,7 +81,7 @@ class Copter {
   	const float _Kiy    = 0.000;
   	const float _max_iy = 0.050;
 
-    const float _Kpz    = 0.002;
+    /*const*/ float _Kpz    = 0.002;
     const float _Kdz    = 0.000;
     const float _Kiz    = 0.000;
     const float _max_iz = 0.050;
@@ -88,14 +89,14 @@ class Copter {
   	/* ===============
   		  Mission Timer
   	   =============== */
-  	const float _mission_time = 15.; // seconds
+  	const float _mission_time = 20.; // seconds
   	bool _mission_timeout = false;
 
   	/* ==============
   		  Arduino Data
   	   ============== */
     int  _copter_alt        = 0.;
-    int  _drop_servo_degree = 10;
+    int  _drop_servo_degree = 13;
     int  _get_servo_degree  = 100;
 };
 

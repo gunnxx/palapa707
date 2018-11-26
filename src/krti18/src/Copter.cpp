@@ -117,6 +117,7 @@ void Copter::go_center(){
 }
 
 void Copter::drop(){
+	ROS_INFO("Release MP!");
 	std_msgs::Int16 servo_degree;
 	servo_degree.data  = _drop_servo_degree;
 
@@ -125,6 +126,7 @@ void Copter::drop(){
 }
 
 void Copter::get(){
+	ROS_INFO("Take MP!");
 	std_msgs::Int16 servo_degree;
 	servo_degree.data  = _get_servo_degree;
 
@@ -132,8 +134,12 @@ void Copter::get(){
 	_right_servo_publisher.publish(servo_degree);
 }
 
-void Copter::change_height(int desired_alt){
+void Copter::go_down(int desired_alt){
+	int hit_count = 0;
+	
 	ros::Rate temp_rate(30);
+	
+	ROS_INFO("Copter Go Down!");
 	
 	_mission_timer.setPeriod(ros::Duration(_mission_time));
 	_mission_timer.start();
@@ -155,7 +161,76 @@ void Copter::change_height(int desired_alt){
 							  desired_alt + 5. - _copter_alt);
 		
 		// Desired height achieved
-		if(_copter_alt < desired_alt) break;
+		if(desired_alt > _copter_alt) hit_count++;
+		if(hit_count > 5) break;
+
+		// Derivative error
+		float dz_err = z_err - old_z_err;
+
+		// Integral error
+		iz_err = std::min(iz_err + z_err, _max_iz);
+
+		// Output value
+		float u_z = z_err*_Kpz + dz_err*_Kdz + iz_err*_Kiz;
+
+		// Update old value
+		old_z_err = z_err;
+		
+		// Adjust proportional gain relative to altitude
+		if(_copter_alt < 200) _Kpz = 0.003;
+		else if(_copter_alt < 300) _Kpz = 0.0025;
+
+		// Publish output value (velocity that moves the copter)
+		geometry_msgs::TwistStamped vel;
+		vel.header.stamp = ros::Time::now();
+		vel.header.frame_id = "1";
+		vel.twist.linear.z = u_z;
+		_cmd_vel_publisher.publish(vel);
+		
+		temp_rate.sleep();
+	}
+	
+	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	else ROS_INFO("Desired Height Achieved!");
+	
+	// Reset gain
+	_Kpz = 0.002;
+	
+	// Reset timer
+	_mission_timer.stop();
+	_mission_timeout = false;
+}
+
+void Copter::go_up(int desired_alt){
+	int hit_count = 0;
+	_Kpz = 0.008;
+	
+	ros::Rate temp_rate(30);
+	
+	ROS_INFO("Copter Go Up!");
+	
+	_mission_timer.setPeriod(ros::Duration(15.));
+	_mission_timer.start();
+
+	// Keep track of old-error to measure Derivative
+	// 5 is tolerable error in cm (offset)
+	float old_z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
+
+	// Set Integral starting value
+	float iz_err = 0.;
+
+	while (ros::ok() &&
+		   !_mission_timeout) { // Mission takes long time
+		ros::spinOnce();
+		
+		// Proportional error
+		float z_err = abs_min(desired_alt - 5. - _copter_alt,
+							  desired_alt + 5. - _copter_alt);
+		
+		// Desired height achieved
+		if(_copter_alt > desired_alt) hit_count++;
+		if(hit_count > 5) break;
 
 		// Derivative error
 		float dz_err = z_err - old_z_err;
@@ -180,16 +255,22 @@ void Copter::change_height(int desired_alt){
 	}
 	
 	if(_mission_timeout) ROS_INFO("Mission Timeout!");
+	else ROS_INFO("Desired Height Achieved!");
+	
+	// Reset gain
+	_Kpz = 0.002;
 	
 	// Reset timer
 	_mission_timer.stop();
 	_mission_timeout = false;
 }
 
-void Copter::change_height_and_centerize(int desired_alt){
+void Copter::go_down_and_centerize(int desired_alt){
+	int hit_count = 0;
+	
 	ros::Rate temp_rate(30);
 	
-	_mission_timer.setPeriod(ros::Duration(_mission_time));
+	_mission_timer.setPeriod(ros::Duration(30.));
 	_mission_timer.start();
 	
 	ROS_INFO("Copter Go Down!");
@@ -220,7 +301,8 @@ void Copter::change_height_and_centerize(int desired_alt){
 							  desired_alt + 5. - _copter_alt);
 
 		// Desired height achieved
-		if(desired_alt == _copter_alt) break;
+		if(desired_alt > _copter_alt) hit_count++;
+		if(hit_count > 5) break;
 
 		// Derivative error
 		float dx_err = x_err - old_x_err;
@@ -236,9 +318,11 @@ void Copter::change_height_and_centerize(int desired_alt){
 		if(_copter_alt < 200){
 			_Kpx = 0.0005;
 			_Kpy = 0.0005;
+			_Kpz = 0.003;
 		} else if(_copter_alt < 300) {
 			_Kpx = 0.001;
 			_Kpy = 0.001;
+			_Kpz = 0.0025;
 		}
 
 		// Output value
@@ -266,12 +350,17 @@ void Copter::change_height_and_centerize(int desired_alt){
 	if(_mission_timeout) ROS_INFO("Mission Timeout!");
 	else ROS_INFO("Desired Height Achieved!");
 	
+	// Reset gain
+	_Kpx = 0.002;
+	_Kpy = 0.002;
+	_Kpz = 0.002;
+	
 	// Reset timer
 	_mission_timer.stop();
 	_mission_timeout = false;
 }
 
-void Copter::change_height_with_land(int desired_alt){
+void Copter::go_down_with_land(int desired_alt){
 	ros::Rate temp_rate(30);
 
 	_mission_timer.setPeriod(ros::Duration(_mission_time));
@@ -306,6 +395,6 @@ void Copter::change_flight_mode(std::string mode){
 	flight_mode.request.base_mode = 0;
 	flight_mode.request.custom_mode = mode;
 	
-	if(_set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to %s", mode);
-	else ROS_INFO("WARNING : Failed to change flight mode to %s", mode);
+	if(_set_mode_client.call(flight_mode)) ROS_INFO("Flight mode changed to %s", mode.c_str());
+	else ROS_INFO("WARNING : Failed to change flight mode to %s", mode.c_str());
 }

@@ -6,12 +6,12 @@
 #include "krti18/Shape.h"
 
 // "Orange" color HSV parameter
-int lH = 90;
-int hH = 120;
-int lS = 90;
-int hS = 180;
-int lV = 200;
-int hV = 255;
+int lH = 90;   //100
+int hH = 120;  //120
+int lS = 40;   //110
+int hS = 255;  //255
+int lV = 180;  //170
+int hV = 255;  //255
 
 // Flag of what things should be detected
 int cv_flag;
@@ -35,6 +35,8 @@ int main(int argc, char **argv) {
 
 	ros::Rate rate(20);
 	ROS_INFO("Starting vision_test_no_thread!");
+	
+	cv_flag = 3;
 
 	while(ros::ok()){
 		ros::spinOnce();

@@ -7,6 +7,8 @@
 int waypoint_reached = 0;
 bool mission_1_reached = false;
 bool mission_2_reached = false;
+bool mission_3_reached = false;
+bool mission_4_reached = false;
 void mission_reached_callback(const mavros_msgs::WaypointReached& data);
 
 int main(int argc, char **argv){
@@ -32,7 +34,7 @@ int main(int argc, char **argv){
 			mission_1_reached = true;
 		}
 		
-		if(waypoint_reached == 7 && !mission_2_reached){
+		if(waypoint_reached == 5 && !mission_2_reached){
 			krti18::Mission data;
 			data.mission_type = 2;
 			mission_type_publisher.publish(data);
@@ -40,8 +42,26 @@ int main(int argc, char **argv){
 			mission_2_reached = true;
 		}
 		
+		if(waypoint_reached == 9 && !mission_3_reached){
+			krti18::Mission data;
+			data.mission_type = 1;
+			mission_type_publisher.publish(data);
+			
+			mission_3_reached = true;
+		}
+		
+		if(waypoint_reached == 13 && !mission_4_reached){
+			krti18::Mission data;
+			data.mission_type = 2;
+			mission_type_publisher.publish(data);
+			
+			mission_4_reached = true;
+		}
+
 		if(mission_1_reached &&
-		   mission_2_reached) break;
+		   mission_2_reached &&
+		   mission_3_reached &&
+		   mission_4_reached) break;
 
 		rate.sleep();
 	}

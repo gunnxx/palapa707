@@ -49,27 +49,23 @@ int main (int argc, char **argv) {
 		*/
 		if (mission_type == -1) break;
 		
-		else if (mission_type == 1) {
+		// Take Payload
+		else if(mission_type == 1) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
 
 			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.go_center();
 			palapa707.change_flight_mode(std::string("LOITER"));
-
-			state.doing_mission = false;
-			copter_state_publisher.publish(state);
-
-			mission_type = 0;
-		}
-
-		else if (mission_type == 2) {
-			state.doing_mission = true;
-			copter_state_publisher.publish(state);
-
+			usleep(2000000);
 			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.change_height(height_desired);
+			palapa707.go_down_and_centerize(165);
 			palapa707.change_flight_mode(std::string("LOITER"));
+			usleep(2000000);
+			palapa707.change_flight_mode(std::string("GUIDED"));
+			palapa707.get();
+			palapa707.go_up(400);
+			palapa707.change_flight_mode(std::string("AUTO"));
 
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
@@ -77,64 +73,20 @@ int main (int argc, char **argv) {
 			mission_type = 0;
 		}
 		
-		else if (mission_type == 3) {
+		// Drop Payload
+		else if(mission_type == 2) {
 			state.doing_mission = true;
 			copter_state_publisher.publish(state);
-
+			
 			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.change_height(height_desired);
-			palapa707.get();
-			palapa707.change_height(height_up);
+			palapa707.go_down_and_centerize(170);
+			palapa707.change_flight_mode(std::string("LOITER"));
+			usleep(2000000);
+			palapa707.change_flight_mode(std::string("GUIDED"));
 			palapa707.drop();
-			palapa707.change_flight_mode(std::string("LOITER"));
-
-			state.doing_mission = false;
-			copter_state_publisher.publish(state);
-
-			mission_type = 0;
-		}
-		
-		else if (mission_type == 4) {
-			state.doing_mission = true;
-			copter_state_publisher.publish(state);
-
-			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.go_center();
-			palapa707.change_flight_mode(std::string("LOITER"));
-			usleep(2000000);
-			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.change_height_and_centerize(180);
-			palapa707.change_flight_mode(std::string("LOITER"));
-			usleep(2000000);
-			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.get();
-			palapa707.change_height(400);
-			palapa707.drop();
-			palapa707.change_flight_mode(std::string("LOITER"));
-
-			state.doing_mission = false;
-			copter_state_publisher.publish(state);
-
-			mission_type = 0;
-		}
-
-		else if(mission_type == 5) {
-			state.doing_mission = true;
-			copter_state_publisher.publish(state);
-
-			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.go_center();
-			palapa707.change_flight_mode(std::string("LOITER"));
-			usleep(2000000);
-			palapa707.change_height_with_land(180);
-			palapa707.change_flight_mode(std::string("LOITER"));
-			usleep(2000000);
-			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.get();
-			palapa707.change_height(400);
-			palapa707.drop();
-			palapa707.change_flight_mode(std::string("LOITER"));
-
+			palapa707.go_up(400);
+			palapa707.change_flight_mode(std::string("AUTO"));
+			
 			state.doing_mission = false;
 			copter_state_publisher.publish(state);
 

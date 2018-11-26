@@ -61,14 +61,14 @@ add_dependencies(main
 target_link_libraries(main
 	${catkin_LIBRARIES})
 
-add_executable(mission_control
-	src/mission_control.cpp
-	${CLASS_DEF})
-add_dependencies(mission_control
-	krti18_generate_messages_cpp)
-target_link_libraries(mission_control
-	${catkin_LIBRARIES}
-	${OpenCV_LIBRARIES})
+#add_executable(mission_control
+#	src/mission_control.cpp
+#	${CLASS_DEF})
+#add_dependencies(mission_control
+#	krti18_generate_messages_cpp)
+#target_link_libraries(mission_control
+#	${catkin_LIBRARIES}
+#	${OpenCV_LIBRARIES})
 
 add_executable(vision
 	src/vision.cpp
@@ -131,12 +131,43 @@ add_dependencies(fm_changer_test
 target_link_libraries(fm_changer_test
 	${catkin_LIBRARIES})
 
+# Only Takes 1 MP
 add_executable(waypoint_reached
 	src/test/waypoint_reached.cpp
 	${CLASS_DEF})
 add_dependencies(waypoint_reached
 	krti18_generate_messages_cpp)
 target_link_libraries(waypoint_reached
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
+# Takes 2 MP, First Drop Zone is Closed
+add_executable(waypoint_reached_1
+	src/test/waypoint_reached_1.cpp
+	${CLASS_DEF})
+add_dependencies(waypoint_reached_1
+	krti18_generate_messages_cpp)
+target_link_libraries(waypoint_reached_1
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
+# Takes 2 MP, Second Drop Zone is Closed
+add_executable(waypoint_reached_2
+	src/test/waypoint_reached_2.cpp
+	${CLASS_DEF})
+add_dependencies(waypoint_reached_2
+	krti18_generate_messages_cpp)
+target_link_libraries(waypoint_reached_2
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
+# Takes 2 MP, Third Drop Zone is Closed
+add_executable(waypoint_reached_3
+	src/test/waypoint_reached_3.cpp
+	${CLASS_DEF})
+add_dependencies(waypoint_reached_3
+	krti18_generate_messages_cpp)
+target_link_libraries(waypoint_reached_3
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
 
