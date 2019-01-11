@@ -171,6 +171,16 @@ target_link_libraries(waypoint_reached_3
 	${catkin_LIBRARIES}
 	${OpenCV_LIBRARIES})
 
+# Flight Test Mission (12 Januari 2019)
+add_executable(flight_test
+	src/test/flight_test.cpp
+	${CLASS_DEF})
+add_dependencies(flight_test
+	krti18_generate_messages_cpp)
+target_link_libraries(flight_test
+	${catkin_LIBRARIES}
+	${OpenCV_LIBRARIES})
+
 add_executable(vision_test_no_thread
 	src/test/vision_test_no_thread.cpp
 	${CLASS_DEF})

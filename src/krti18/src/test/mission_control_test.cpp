@@ -63,7 +63,7 @@ int main (int argc, char **argv) {
 			palapa707.change_flight_mode(std::string("LOITER"));
 			usleep(2000000);
 			palapa707.change_flight_mode(std::string("GUIDED"));
-			palapa707.get();
+			//palapa707.get();
 			palapa707.go_up(400);
 			palapa707.change_flight_mode(std::string("AUTO"));
 

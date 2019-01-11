@@ -2,6 +2,13 @@
 
 All tests are using Channel-7 as trigger. Run below command first and the node will wait for trigger.
 
+### Flight Test Mission :
+Run this on your terminal
+```
+roslaunch mavros apm.launch		# New Terminal
+roslaunch krti18 flight_test	# New Terminal
+```
+
 ### Calibrating `validation_threshold` :
 Activate necessary nodes
 ```shell
